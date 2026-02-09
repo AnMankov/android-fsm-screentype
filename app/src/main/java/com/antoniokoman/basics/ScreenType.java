@@ -1,15 +1,21 @@
 package com.antoniokoman.basics;
 
-//есть небольшой набор допустимых состояний автомата (enum), и для каждого состояния чётко прописано, какая «подпрограмма экрана» за него отвечает
-
 public enum ScreenType {
     MAIN_MENU {
-        @Override public Screen create() { return new MainMenuScreen(); }
+        @Override Screen create() { return new MainMenuScreen(); }
     },
     SETTINGS {
-        @Override public Screen create() { return new SettingsScreen(); }
+        @Override Screen create() { return new SettingsScreen(); }
     };
 
-    public abstract Screen create();
-}
+    private Screen instance;
 
+    abstract Screen create();
+
+    public Screen getInstance() {
+        if (instance == null) {
+            instance = create();
+        }
+        return instance;
+    }
+}
