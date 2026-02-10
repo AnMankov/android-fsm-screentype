@@ -7,5 +7,4 @@ public interface Screen {
     void onExit(ViewGroup root);
 
     ScreenState getState();
-    void setStateListener(ScreenStateListener listener);
 }
