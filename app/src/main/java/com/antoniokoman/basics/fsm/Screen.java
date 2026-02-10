@@ -1,4 +1,4 @@
-package com.antoniokoman.basics;
+package com.antoniokoman.basics.fsm;
 
 import android.view.ViewGroup;
 

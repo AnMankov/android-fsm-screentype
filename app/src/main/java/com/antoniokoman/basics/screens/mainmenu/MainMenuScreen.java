@@ -1,11 +1,20 @@
-package com.antoniokoman.basics;
+package com.antoniokoman.basics.screens.mainmenu;
 
 import android.view.ViewGroup;
+import android.widget.Button;
+
+import com.antoniokoman.basics.fsm.Screen;
+import com.antoniokoman.basics.fsm.ScreenState;
+import com.antoniokoman.basics.fsm.ScreenStateListener;
 
 public class MainMenuScreen implements Screen {
 
     private MainMenuState state = MainMenuState.IDLE;
     private ScreenStateListener listener;
+
+    public MainMenuScreen(ScreenStateListener listener) {
+        this.listener = listener;
+    }
 
     @Override
     public ScreenState getState() {
@@ -14,8 +23,16 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void onEnter(ViewGroup root) {
-        // здесь создадим вьюшки и навесим onClick:
-        // button.setOnClickListener(v -> onSettingsButtonClicked());
+        Button settingsButton = new Button(root.getContext());
+        settingsButton.setText("Settings");
+        settingsButton.setOnClickListener(v -> {
+            state = MainMenuState.PRESSED_SETTINGS;
+            if (listener != null) {
+                listener.onScreenStateChanged(state);
+            }
+        });
+
+        root.addView(settingsButton);
     }
 
     @Override

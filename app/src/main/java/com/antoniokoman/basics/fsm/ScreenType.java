@@ -1,20 +1,24 @@
-package com.antoniokoman.basics;
+package com.antoniokoman.basics.fsm;
+
+import com.antoniokoman.basics.screens.mainmenu.MainMenuScreen;
+import com.antoniokoman.basics.screens.settings.SettingsScreen;
 
 public enum ScreenType {
     MAIN_MENU {
-        @Override Screen create() { return new MainMenuScreen(); }
+        @Override
+        Screen create(ScreenStateListener listener) { return new MainMenuScreen(listener); }
     },
     SETTINGS {
-        @Override Screen create() { return new SettingsScreen(); }
+        @Override Screen create(ScreenStateListener listener) { return new SettingsScreen(listener); }
     };
 
     private Screen instance;
 
-    abstract Screen create();
+    abstract Screen create(ScreenStateListener listener);
 
-    public Screen getInstance() {
+    public Screen getInstance(ScreenStateListener listener) {
         if (instance == null) {
-            instance = create();
+            instance = create(listener);
         }
         return instance;
     }
