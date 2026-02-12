@@ -9,12 +9,9 @@ import com.antoniokoman.basics.fsm.ScreenStateListener;
 
 public class MainMenuScreen implements Screen {
 
+    private Button cachedView;
     private MainMenuState state = MainMenuState.IDLE;
     private ScreenStateListener listener;
-
-    public MainMenuScreen(ScreenStateListener listener) {
-        this.listener = listener;
-    }
 
     @Override
     public ScreenState getState() {
@@ -22,28 +19,25 @@ public class MainMenuScreen implements Screen {
     }
 
     @Override
-    public void onEnter(ViewGroup root) {
-        Button settingsButton = new Button(root.getContext());
-        settingsButton.setText("Settings");
-        settingsButton.setOnClickListener(v -> {
-            state = MainMenuState.PRESSED_SETTINGS;
-            if (listener != null) {
-                listener.onScreenStateChanged(state);
-            }
-        });
+    public void onEnter(ViewGroup root, ScreenStateListener listener) {
+        this.listener = listener;
+        if (cachedView == null) {
+            cachedView = new Button(root.getContext()); //Создаем один раз за всю жизнь приложения
+            cachedView.setText("Settings");
+            cachedView.setOnClickListener(v -> {
+                state = MainMenuState.PRESSED_SETTINGS;
+                if (listener != null) {
+                    listener.onScreenStateChanged(state);
+                }
+            });
+        }
 
-        root.addView(settingsButton);
+        root.addView(cachedView); //аттач вьюшки к новому родителю
     }
 
     @Override
     public void onExit(ViewGroup root) {
-        root.removeAllViews();
-    }
-
-    private void onSettingsButtonClicked() {
-        state = MainMenuState.PRESSED_SETTINGS;
-        if (listener != null) {
-            listener.onScreenStateChanged(state);
-        }
+        this.listener = null; //разрыв цепочки утечки памяти
+        root.removeView(this.cachedView); //отцепка вьюшки (вьюшка остается в памяти экрана)
     }
 }

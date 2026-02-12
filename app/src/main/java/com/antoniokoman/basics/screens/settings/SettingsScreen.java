@@ -10,25 +10,25 @@ import com.antoniokoman.basics.screens.mainmenu.MainMenuState;
 
 public class SettingsScreen implements Screen {
 
+    private Button cachedView;
     private SettingsState state = SettingsState.IDLE;
     private ScreenStateListener listener;
 
-    public SettingsScreen(ScreenStateListener listener) {
-        this.listener = listener;
-    }
-
     @Override
-    public void onEnter(ViewGroup root) {
-        Button backButton = new Button(root.getContext());
-        backButton.setText("Back");
-        backButton.setOnClickListener(v -> {
-            state = SettingsState.PRESSED_BACK;
-            if (listener != null) {
-                listener.onScreenStateChanged(state);
-            }
-        });
+    public void onEnter(ViewGroup root, ScreenStateListener listener) {
+        this.listener = listener;
+        if (cachedView == null) {
+            cachedView = new Button(root.getContext()); //Создаем один раз за всю жизнь приложения
+            cachedView.setText("Back");
+            cachedView.setOnClickListener(v -> {
+                state = SettingsState.PRESSED_BACK;
+                if (listener != null) {
+                    listener.onScreenStateChanged(state);
+                }
+            });
+        }
 
-        root.addView(backButton);
+        root.addView(cachedView); //аттач вьюшки к новому родителю
     }
 
     @Override

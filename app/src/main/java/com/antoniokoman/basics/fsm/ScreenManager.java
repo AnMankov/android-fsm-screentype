@@ -3,65 +3,74 @@ package com.antoniokoman.basics.fsm;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class ScreenManager implements ScreenStateListener {
 
     private final ViewGroup root;
     private ScreenType currentType;
     private final Map<TransitionKey, ScreenType> transitions = new HashMap<>();
+    private final Map<ScreenType, Screen> screenCache = new HashMap<>();
+    private final Stack<ScreenType> history = new Stack<>();
 
     public ScreenManager(ViewGroup root) {
         this.root = root;
     }
 
-    public void showScreen(ScreenType type) {
-        // 1. выключаем предыдущий, если был
-        if (currentType != null) {
-            Screen oldScreen = currentType.getInstance(this);
-            oldScreen.onExit(root);
+    private Screen getOrCreateScreen(ScreenType type) {
+        if (!screenCache.containsKey(type)) {
+            screenCache.put(type, type.create());
         }
+        return screenCache.get(type);
+    }
 
-        // 2. включаем новый
+    public void navigateTo(ScreenType type, boolean addToHistory) {
+        if (currentType != null) {
+            if (addToHistory) history.push(currentType);
+            getOrCreateScreen(currentType).onExit(root);
+        }
         currentType = type;
-        Screen newScreen = currentType.getInstance(this);
-        newScreen.onEnter(root);
+        getOrCreateScreen(type).onEnter(root, this);
+    }
+
+    public boolean handleBackPressed() {
+        if (!history.isEmpty()) {
+            ScreenType previous = history.pop();
+            navigateTo(previous, false);
+            return true;
+        }
+        return false;
     }
 
     public ScreenType getCurrentType() {
         return currentType;
     }
 
-    public Screen getCurrentScreen() {
-        return currentType != null ? currentType.getInstance(this) : null;
+    public ArrayList<String> getHistoryAsState() {
+        ArrayList<String> state = new ArrayList<>();
+        for (ScreenType type : history) state.add(type.name());
+        return state;
     }
 
-    public void registerTransition(
-            ScreenType from,
-            ScreenState state,
-            ScreenType to
-    ) {
+    public void restoreHistory(ArrayList<String> state) {
+        history.clear();
+        if (state != null) {
+            for (String typeName : state) history.push(ScreenType.valueOf(typeName));
+        }
+    }
+
+    public void registerTransition(ScreenType from, ScreenState state, ScreenType to) {
         transitions.put(new TransitionKey(from, state), to);
     }
 
     @Override
     public void onScreenStateChanged(ScreenState newState) {
-        Log.d("FSM",
-                "Event: " + currentType + " -> " + newState
-        );
-
         ScreenType next = resolveNextScreen(currentType, newState);
-
         if (next != null && next != currentType) {
-            Log.d("FSM",
-                    "Transition: " + currentType + " --" + newState + "--> " + next
-            );
-            showScreen(next);
-        } else {
-            Log.w("FSM",
-                    "No transition for " + currentType + " + " + newState
-            );
+            navigateTo(next, true);
         }
     }
 
@@ -78,19 +87,15 @@ public class ScreenManager implements ScreenStateListener {
         TransitionKey(ScreenType type, ScreenState state) {
             this.type = type;
             this.stateClass = state.getClass();
-            this.stateName = ((Enum<?>) state).name(); // у enum есть name()
+            this.stateName = ((Enum<?>) state).name();
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             TransitionKey that = (TransitionKey) o;
-
-            if (type != that.type) return false;
-            if (!stateClass.equals(that.stateClass)) return false;
-            return stateName.equals(that.stateName);
+            return type == that.type && stateClass.equals(that.stateClass) && stateName.equals(that.stateName);
         }
 
         @Override
@@ -102,21 +107,12 @@ public class ScreenManager implements ScreenStateListener {
         }
     }
 
-    public String dumpGraph() { //печатает граф на основе transitions
+    public String dumpGraph() {
         StringBuilder sb = new StringBuilder();
-
         for (Map.Entry<TransitionKey, ScreenType> entry : transitions.entrySet()) {
-            TransitionKey key = entry.getKey();
-            ScreenType to = entry.getValue();
-
-            sb.append(key.type)
-                    .append(" -- ")
-                    .append(key.stateName)
-                    .append(" --> ")
-                    .append(to)
-                    .append("\n");
+            sb.append(entry.getKey().type).append(" -- ").append(entry.getKey().stateName)
+                    .append(" --> ").append(entry.getValue()).append("\n");
         }
-
         return sb.toString();
     }
 }
