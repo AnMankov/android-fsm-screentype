@@ -1,5 +1,7 @@
+
 package com.antoniokoman.basics.fsm;
 
+import android.os.Bundle;
 import android.view.ViewGroup;
 
 public interface Screen {
@@ -7,4 +9,7 @@ public interface Screen {
     void onExit(ViewGroup root);
 
     ScreenState getState();
+
+    default void saveState(Bundle outState) {}
+    default void restoreState(Bundle inState) {}
 }

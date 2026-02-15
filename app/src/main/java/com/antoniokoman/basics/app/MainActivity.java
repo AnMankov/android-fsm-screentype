@@ -41,31 +41,28 @@ public class MainActivity extends AppCompatActivity {
         Log.d("FSM", "\n" + screenManager.dumpGraph());
 
         if (savedInstanceState != null) {
-            // Восстанавливаем историю и текущий экран
-            ArrayList<String> savedHistory = savedInstanceState.getStringArrayList(KEY_HISTORY);
-            screenManager.restoreHistory(savedHistory);
-
-            String savedType = savedInstanceState.getString(KEY_CURRENT_SCREEN);
-            screenManager.navigateTo(ScreenType.valueOf(savedType), false);
+            // Достаем один Bundle и менеджер сам всё восстановит
+            Bundle fsmData = savedInstanceState.getBundle("fsm_data");
+            screenManager.restoreEverything(fsmData);
         } else {
-            // Первый запуск
             screenManager.navigateTo(ScreenType.MAIN_MENU, false);
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (screenManager.getCurrentType() != null) {
-            outState.putString(KEY_CURRENT_SCREEN, screenManager.getCurrentType().name());
-            outState.putStringArrayList(KEY_HISTORY, screenManager.getHistoryAsState());
-        }
+    protected void onSaveInstanceState(Bundle outState) { //вызывается при повороте экрана или временном закрытии приложения системой для освобождения памяти; outState - мешок для временного хранения примитивов чтобы они не потерялись при пересоздании экрана
+        //по кнопке Назад не вызывается (считается что пользователь сам закрывает активити)
+        //используется для временных данных интерфейса
+        //для постоянных данных надо использовать метод onPause с сохранением в БД|файлы
+        super.onSaveInstanceState(outState); //стандартный механизм сохранения состояний UI: текст в EditText, положение прокрутки ScrollView и т.д.
+        //при пересоздании этот бандл будет передан в onCreate и onRestoreInstanceState для восстановления данных
+        outState.putBundle("fsm_data", screenManager.saveEverything()); // Просто просим менеджер упаковать чемоданы
     }
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed() { //пользователь нажал "Назад" или сделал жест
         if (!screenManager.handleBackPressed()) {
-            super.onBackPressed();
+            super.onBackPressed(); //система берет верхний экран, выбрасывает его и показывает тот что лежал под ним, если под ним ничего, то приложение закрывается
         }
     }
 }

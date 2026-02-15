@@ -1,5 +1,7 @@
+
 package com.antoniokoman.basics.fsm;
 
+import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 
@@ -15,6 +17,7 @@ public class ScreenManager implements ScreenStateListener {
     private final Map<TransitionKey, ScreenType> transitions = new HashMap<>();
     private final Map<ScreenType, Screen> screenCache = new HashMap<>();
     private final Stack<ScreenType> history = new Stack<>();
+    private Bundle savedStatesBundle = new Bundle(); //используем Bundle для хранения состояний экранов
 
     public ScreenManager(ViewGroup root) {
         this.root = root;
@@ -22,7 +25,15 @@ public class ScreenManager implements ScreenStateListener {
 
     private Screen getOrCreateScreen(ScreenType type) {
         if (!screenCache.containsKey(type)) {
-            screenCache.put(type, type.create());
+            Screen screen = type.create();
+
+            // Достаем Bundle конкретно для этого экрана по его ключу (имени)
+            Bundle screenState = savedStatesBundle.getBundle(type.name());
+            if (screenState != null) {
+                screen.restoreState(screenState);
+            }
+
+            screenCache.put(type, screen);
         }
         return screenCache.get(type);
     }
@@ -37,12 +48,12 @@ public class ScreenManager implements ScreenStateListener {
     }
 
     public boolean handleBackPressed() {
-        if (!history.isEmpty()) {
+        if (!history.isEmpty()) { //в стеке есть экраны
             ScreenType previous = history.pop();
             navigateTo(previous, false);
             return true;
         }
-        return false;
+        return false; //в стеке нет экранов
     }
 
     public ScreenType getCurrentType() {
@@ -114,5 +125,40 @@ public class ScreenManager implements ScreenStateListener {
                     .append(" --> ").append(entry.getValue()).append("\n");
         }
         return sb.toString();
+    }
+
+    public Bundle saveEverything() { //Вызывать в MainActivity.onSaveInstanceState
+        // 1. Опрашиваем все живые экраны и просим их обновить свои данные в нашем хранилище
+        for (Map.Entry<ScreenType, Screen> entry : screenCache.entrySet()) {
+            Bundle screenBundle = new Bundle();
+            entry.getValue().saveState(screenBundle);
+            savedStatesBundle.putBundle(entry.getKey().name(), screenBundle);
+        }
+
+        // 2. Упаковываем всё в один финальный Bundle
+        Bundle out = new Bundle();
+        out.putBundle("all_screens_data", savedStatesBundle); // Вложенный Bundle
+        out.putStringArrayList("history", getHistoryAsState());
+        out.putString("current", currentType != null ? currentType.name() : null);
+        return out;
+    }
+
+    public void restoreEverything(Bundle mainBundle) { // Восстанавливаем всё обратно
+        if (mainBundle == null) return;
+
+        // Восстанавливаем хранилище состояний
+        Bundle restoredStates = mainBundle.getBundle("all_screens_data");
+        if (restoredStates != null) {
+            this.savedStatesBundle = restoredStates;
+        }
+
+        // Восстанавливаем историю
+        restoreHistory(mainBundle.getStringArrayList("history"));
+
+        // Переходим на текущий экран
+        String current = mainBundle.getString("current");
+        if (current != null) {
+            navigateTo(ScreenType.valueOf(current), false);
+        }
     }
 }

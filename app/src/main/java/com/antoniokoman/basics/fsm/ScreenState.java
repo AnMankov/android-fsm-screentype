@@ -1,3 +1,4 @@
+
 package com.antoniokoman.basics.fsm;
 
 public interface ScreenState {
