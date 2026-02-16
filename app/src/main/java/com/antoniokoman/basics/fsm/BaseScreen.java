@@ -2,29 +2,37 @@ package com.antoniokoman.basics.fsm;
 
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 public abstract class BaseScreen implements Screen {
-    protected ViewGroup cachedView; // Изменим на ViewGroup для гибкости (Frame/Linear)
+    protected FrameLayout cachedView; // Сразу фиксируем тип, чтобы не кастить постоянно
     protected ScreenStateListener listener;
 
-    // Глобальный метод конвертации для всех экранов
+    // Берем density из контекста напрямую — так надежнее
     protected int dp(int value) {
-        if (cachedView == null) return value; // Защита, если вызвали слишком рано
-        return (int) (value * cachedView.getResources().getDisplayMetrics().density);
+        float density = cachedView != null ?
+                cachedView.getResources().getDisplayMetrics().density : 2.0f; // 2.0f как fallback
+        return (int) (value * density);
     }
 
     @Override
     public void onEnter(ViewGroup root, ScreenStateListener listener) {
         this.listener = listener;
 
+        // 1. ОЧИСТКА КОРНЯ (Чтобы экраны не накладывались)
+        root.removeAllViews();
+
         if (cachedView == null) {
-            // Создаем контейнер (по умолчанию FrameLayout, так как он универсальнее)
             cachedView = new FrameLayout(root.getContext());
-            cachedView.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
+            // 2. ЧЕТКИЕ ПАРАМЕТРЫ (Чтобы верстка не "ехала")
+            cachedView.setLayoutParams(new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+            ));
         }
 
+        // 3. ОЧИСТКА ЭКРАНА (Перед каждой перерисовкой)
         cachedView.removeAllViews();
+
         onRender();
         root.addView(cachedView);
     }
@@ -44,5 +52,3 @@ public abstract class BaseScreen implements Screen {
         cachedView = null;
     }
 }
-
-
