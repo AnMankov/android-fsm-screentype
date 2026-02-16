@@ -10,10 +10,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.antoniokoman.basics.fsm.ScreenManager;
 import com.antoniokoman.basics.fsm.ScreenType;
-import com.antoniokoman.basics.screens.mainmenu.MainMenuState;
-import com.antoniokoman.basics.screens.settings.SettingsState;
-
-import java.util.ArrayList;
+import com.antoniokoman.basics.fsm.CatCreateState;
+import com.antoniokoman.basics.fsm.CatEditorState;
+import com.antoniokoman.basics.fsm.CatListState;
+import com.antoniokoman.basics.fsm.ConvCreateState;
+import com.antoniokoman.basics.fsm.ConvEditorState;
+import com.antoniokoman.basics.fsm.ConvViewState;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             Bundle fsmData = savedInstanceState.getBundle("fsm_data");
             screenManager.restoreEverything(fsmData);
         } else {
-            screenManager.navigateTo(ScreenType.MAIN_MENU, false);
+            screenManager.navigateTo(ScreenType.CAT_LIST, false);
         }
     }
 

@@ -38,11 +38,26 @@ public class ScreenManager implements ScreenStateListener {
         return screenCache.get(type);
     }
 
-    public void navigateTo(ScreenType type, boolean addToHistory) {
-        if (currentType != null) {
-            if (addToHistory) history.push(currentType);
-            getOrCreateScreen(currentType).onExit(root);
+    public void navigateTo(ScreenType type, boolean addToHistory) { //Мы не перерисовываем экран (onEnter / render), если переход не требуется.
+        // 1. Если мы уже на этом экране — ничего не делаем
+        if (type == currentType) { //Если логика экрана по ошибке вызовет переход на саму себя в onEnter, без проверки type == currentType приложение уйдет в бесконечную рекурсию
+            return;
         }
+
+        if (currentType != null) {
+            if (addToHistory) {
+                // 2. Дополнительная проверка: не кладем в историю тот же экран,
+                // который уже лежит на вершине стека
+                if (history.isEmpty() || history.peek() != currentType) { //Без проверки history.peek() в стеке могли бы копиться цепочки вида A -> B -> B -> B. Пользователю пришлось бы нажимать «Назад» трижды, чтобы выйти из экрана B.
+                    history.push(currentType);
+                }
+            }
+
+            Screen oldScreen = getOrCreateScreen(currentType);
+            oldScreen.onExit(root);
+            oldScreen.clearGraphics();
+        }
+
         currentType = type;
         getOrCreateScreen(type).onEnter(root, this);
     }

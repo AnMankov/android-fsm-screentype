@@ -1,10 +1,14 @@
-
+//это просто фабрика. Он не хранит экземпляры.
 package com.antoniokoman.basics.fsm;
 
-import com.antoniokoman.basics.screens.mainmenu.MainMenuScreen;
-import com.antoniokoman.basics.screens.settings.SettingsScreen;
+import com.antoniokoman.basics.screens.categories.CategoryCreateScreen;
+import com.antoniokoman.basics.screens.categories.CategoryEditorScreen;
+import com.antoniokoman.basics.screens.categories.CategoryListScreen;
+import com.antoniokoman.basics.screens.converters.ConverterCreateScreen;
+import com.antoniokoman.basics.screens.converters.ConverterEditorScreen;
+import com.antoniokoman.basics.screens.converters.ConverterViewScreen;
 
-public enum ScreenType { //это просто фабрика. Он не хранит экземпляры.
+public enum ScreenType {
     CAT_LIST {
         @Override Screen create() { return new CategoryListScreen(); }
     },
@@ -26,3 +30,4 @@ public enum ScreenType { //это просто фабрика. Он не хра�
 
     abstract Screen create();
 }
+
