@@ -39,7 +39,13 @@
     <dimen name="appbar_height_phone">56dp</dimen>
     <dimen name="appbar_height_tablet">64dp</dimen>
     <dimen name="appbar_horizontal_padding">16dp</dimen>
-    <dimen name="appbar_icon_size">24dp</dimen>
     <dimen name="appbar_action_gap">8dp</dimen>
+    <dimen name="appbar_title_text_size">22sp</dimen>
+    <dimen name="appbar_elevation_phone">4dp</dimen>
+    <dimen name="appbar_elevation_tablet">6dp</dimen>
+    <dimen name="appbar_icon_size_phone">24dp</dimen>
+    <dimen name="appbar_icon_size_tablet">28dp</dimen>
+    <dimen name="appbar_icon_vertical_offset">1dp</dimen>
+
 
 </resources>

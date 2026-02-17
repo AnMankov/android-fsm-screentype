@@ -16,6 +16,13 @@ public final class AppTheme {
     public static int backgroundColor(Context context) {
         return ContextCompat.getColor(context, R.color.app_background);
     }
+    public static int getAppBarBackgroundColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_bar_background);
+    }
+
+    public static int getAppBarContentColor(Context ctx) {
+        return ContextCompat.getColor(ctx, R.color.app_bar_on_background);
+    }
 
     public static int accentSoftColor(Context context) {
         return ContextCompat.getColor(context, R.color.app_accent_soft);
@@ -23,6 +30,10 @@ public final class AppTheme {
 
     public static int iconTintColor(Context context) {
         return ContextCompat.getColor(context, R.color.app_icon_tint);
+    }
+
+    public static int fabIconTintColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_fab_icon_tint);
     }
 
     public static int textMainColor(Context context) {
@@ -46,5 +57,5 @@ public final class AppTheme {
     }
 
     // Прозрачности и прочее, чего нет смысла тащить в ресурсы
-    public static final float ALPHA_DECORATIVE = 0.2f;
+    public static final float ALPHA_DECORATIVE = 0.9f;
 }

@@ -1,5 +1,9 @@
 <resources>
+    <!-- Общее -->
     <string name="app_name">Basics</string>
-    <string name="cat_list_empty">Здесь пока нет категорий!\nНажмите + чтобы добавить</string>
-    <string name="cat_list_add_hint">+</string>
+
+    <!-- Экран списка категорий -->
+    <string name="cat_list_title">Категории</string>
+    <string name="cat_list_empty">Здесь пока нет категорий!\nНажмите + чтобы добавить.</string>
+    <string name="cat_list_add_hint">Добавить категорию</string>
 </resources>

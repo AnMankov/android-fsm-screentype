@@ -24,7 +24,8 @@ public final class AppBarView extends FrameLayout {
 
     private void init(Context context) {
         int widthDp = getScreenWidthDp(context);
-        boolean isExpanded = widthDp >= 840; // тот же порог
+        int expandedMin = context.getResources().getInteger(R.integer.width_expanded_min_dp);
+        boolean isExpanded = widthDp >= expandedMin;
 
         int heightPx = AppTheme.dimenPx(
                 context,
@@ -36,7 +37,13 @@ public final class AppBarView extends FrameLayout {
                 heightPx
         );
         setLayoutParams(lp);
-        setBackgroundColor(AppTheme.backgroundColor(context));
+        setBackgroundColor(AppTheme.getAppBarBackgroundColor(context));
+
+        float elevationPx = AppTheme.dimenPx(
+                context,
+                isExpanded ? R.dimen.appbar_elevation_tablet : R.dimen.appbar_elevation_phone
+        );
+        setElevation(elevationPx);
 
         LinearLayout row = new LinearLayout(context);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -50,14 +57,27 @@ public final class AppBarView extends FrameLayout {
         row.setPadding(horizontalPadding, 0, horizontalPadding, 0);
 
         navIcon = new ImageView(context);
-        int iconSize = AppTheme.dimenPx(context, R.dimen.appbar_icon_size);
+        int iconSize = AppTheme.dimenPx(
+                context,
+                isExpanded ? R.dimen.appbar_icon_size_tablet
+                        : R.dimen.appbar_icon_size_phone
+        );
         LinearLayout.LayoutParams navLp =
                 new LinearLayout.LayoutParams(iconSize, iconSize);
+
+// лёгкий сдвиг вниз, чтобы визуально центр совпал с текстом
+        navLp.topMargin = AppTheme.dimenPx(context, R.dimen.appbar_icon_vertical_offset);
         row.addView(navIcon, navLp);
 
+
         titleView = new TextView(context);
-        titleView.setTextColor(AppTheme.textMainColor(context));
-        titleView.setTextSize(20); // можно тоже вынести в dimen sp
+        titleView.setTextColor(AppTheme.getAppBarContentColor(context));
+
+        float titleSizePx = context.getResources().getDimension(R.dimen.appbar_title_text_size);
+        float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+        float titleSizeSp = titleSizePx / scaledDensity;
+        titleView.setTextSize(titleSizeSp);
+
         LinearLayout.LayoutParams titleLp =
                 new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f);
         titleLp.leftMargin = AppTheme.dimenPx(context, R.dimen.spacing_medium);
@@ -80,7 +100,7 @@ public final class AppBarView extends FrameLayout {
 
     public void setNavigationIcon(int resId, OnClickListener listener) {
         navIcon.setImageResource(resId);
-        navIcon.setColorFilter(AppTheme.iconTintColor(getContext()));
+        navIcon.setColorFilter(AppTheme.getAppBarContentColor(getContext()));
         navIcon.setOnClickListener(listener);
         navIcon.setVisibility(VISIBLE);
     }
@@ -93,14 +113,29 @@ public final class AppBarView extends FrameLayout {
 
     public void addAction(int resId, OnClickListener listener) {
         ImageView action = new ImageView(getContext());
-        int size = AppTheme.dimenPx(getContext(), R.dimen.appbar_icon_size);
+        boolean isExpanded = getScreenWidthDp(getContext()) >=
+                getContext().getResources().getInteger(R.integer.width_expanded_min_dp);
+
+        int size = AppTheme.dimenPx(
+                getContext(),
+                isExpanded ? R.dimen.appbar_icon_size_tablet
+                        : R.dimen.appbar_icon_size_phone
+        );
+
         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams(size, size);
         lp.leftMargin = AppTheme.dimenPx(getContext(), R.dimen.appbar_action_gap);
+        lp.topMargin = AppTheme.dimenPx(getContext(), R.dimen.appbar_icon_vertical_offset);
         action.setImageResource(resId);
         action.setColorFilter(AppTheme.iconTintColor(getContext()));
         action.setOnClickListener(listener);
         actionsContainer.addView(action, lp);
+    }
+
+    private boolean isTablet(Context context) {
+        int widthDp = getScreenWidthDp(context);
+        int expandedMin = context.getResources().getInteger(R.integer.width_expanded_min_dp);
+        return widthDp >= expandedMin;
     }
 
     public void clearActions() {
@@ -112,5 +147,7 @@ public final class AppBarView extends FrameLayout {
         return (int) (dm.widthPixels / dm.density);
     }
 }
+
+
 
 

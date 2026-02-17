@@ -21,6 +21,7 @@ import com.antoniokoman.basics.fsm.CatCreateState;
 import com.antoniokoman.basics.fsm.CatListState;
 import com.antoniokoman.basics.fsm.ScreenState;
 import com.antoniokoman.basics.repository.Repository;
+import com.antoniokoman.basics.screens.base.AppBarView;
 
 public class CategoryListScreen extends BaseScreen {
 
@@ -35,23 +36,44 @@ public class CategoryListScreen extends BaseScreen {
 
     @Override
     protected void onRender() {
-        cachedView.setBackgroundColor(AppTheme.backgroundColor(cachedView.getContext()));
+        Context context = cachedView.getContext();
+        cachedView.setBackgroundColor(AppTheme.backgroundColor(context));
 
+        // 1. AppBar
+        AppBarView appBar = createAppBar(context);
+        cachedView.addView(appBar);
+
+        // 2. Контент под аппбаром
         if (repo.catList.categories.isEmpty()) {
-            renderEmptyState(cachedView);
+            renderEmptyState(cachedView, appBar.getLayoutParams().height);
         } else {
-            // renderList(cachedView);
+            // renderList(cachedView, appBar.getLayoutParams().height);
         }
 
+        // 3. FAB поверх всего
         renderFloatingButton(cachedView);
     }
 
     @Override public ScreenState getState() { return CatListState.IDLE; }
 
+    private AppBarView createAppBar(Context context) {
+        AppBarView appBar = new AppBarView(context);
+        appBar.setTitle(context.getString(R.string.cat_list_title)); // добавь строку в strings.xml
+
+        appBar.setNavigationIcon(R.drawable.ic_menu, v -> {
+            // TODO: открыть drawer, показать меню, или пока просто логика назад
+            // if (listener != null) listener.onScreenStateChanged(CatListState.PR_BACK);
+        });
+
+        return appBar;
+    }
+
     private void renderFloatingButton(FrameLayout root) {
         Context context = root.getContext();
         int widthDp = getScreenWidthDp(context);
-        boolean isExpanded = widthDp >= WIDTH_EXPANDED_MIN_DP;
+        int expandedMin = getExpandedMinWidthDp(context);
+        boolean isExpanded = widthDp >= expandedMin;
+
 
         int fabSizePx = AppTheme.dimenPx(
                 context,
@@ -79,7 +101,7 @@ public class CategoryListScreen extends BaseScreen {
 
         ImageView icon = new ImageView(context);
         icon.setImageResource(R.drawable.ic_add_tiles);
-        icon.setColorFilter(AppTheme.iconTintColor(context));
+        icon.setColorFilter(AppTheme.fabIconTintColor(context));
 
         FrameLayout.LayoutParams iconLp = new FrameLayout.LayoutParams(iconSizePx, iconSizePx);
         iconLp.gravity = Gravity.CENTER;
@@ -101,16 +123,18 @@ public class CategoryListScreen extends BaseScreen {
         return (int) (dm.widthPixels / dm.density);
     }
 
-    private void renderEmptyState(FrameLayout root) {
+    private void renderEmptyState(FrameLayout root, int topOffsetPx) {
         Context context = root.getContext();
         int widthDp = getScreenWidthDp(context);
-        boolean isExpanded = widthDp >= WIDTH_EXPANDED_MIN_DP;
+        int expandedMin = getExpandedMinWidthDp(context);
+        boolean isExpanded = widthDp >= expandedMin;
 
         int titleSizeSpRes = isExpanded
                 ? R.dimen.empty_title_tablet
                 : R.dimen.empty_title_phone;
         float titleSizeSp = context.getResources()
-                .getDimension(titleSizeSpRes) / context.getResources().getDisplayMetrics().scaledDensity;
+                .getDimension(titleSizeSpRes)
+                / context.getResources().getDisplayMetrics().scaledDensity;
 
         int topPaddingPx = AppTheme.dimenPx(
                 context,
@@ -125,15 +149,21 @@ public class CategoryListScreen extends BaseScreen {
                 isExpanded ? R.dimen.empty_icon_tablet : R.dimen.empty_icon_phone
         );
 
+        // Контейнер для центрирования контента по вертикали
+        LinearLayout container = new LinearLayout(context);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setGravity(Gravity.CENTER); // центр по вертикали и горизонтали
+
+        // Сам empty layout (текст + иконка)
         LinearLayout emptyLayout = new LinearLayout(context);
         emptyLayout.setOrientation(LinearLayout.VERTICAL);
-        emptyLayout.setGravity(Gravity.CENTER);
+        emptyLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 
         TextView tv = new TextView(context);
         tv.setText(context.getString(R.string.cat_list_empty));
         tv.setTextColor(AppTheme.textSecondaryColor(context));
         tv.setTextSize(titleSizeSp);
-        tv.setGravity(Gravity.CENTER);
+        tv.setGravity(Gravity.CENTER_HORIZONTAL);
         tv.setPadding(0, topPaddingPx, 0, textIconGapPx);
         emptyLayout.addView(tv, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
@@ -151,6 +181,20 @@ public class CategoryListScreen extends BaseScreen {
         iconLp.gravity = Gravity.CENTER_HORIZONTAL;
         emptyLayout.addView(bigIcon, iconLp);
 
-        root.addView(emptyLayout, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        // Кладём emptyLayout в контейнер
+        container.addView(emptyLayout,
+                new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+        // А контейнер — в root, с отступом от верха равным высоте app bar
+        FrameLayout.LayoutParams rootLp =
+                new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+        rootLp.topMargin = topOffsetPx;
+
+        root.addView(container, rootLp);
+    }
+
+
+    private int getExpandedMinWidthDp(Context context) {
+        return context.getResources().getInteger(R.integer.width_expanded_min_dp);
     }
 }
