@@ -3,6 +3,11 @@
     <style name="Base.Theme.Basics" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Цвет статус-бара такой же, как фон экрана -->
+        <item name="android:statusBarColor">@color/app_background</item>
+        <!-- Фон светлый → тёмные иконки в статус-баре -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Basics" parent="Base.Theme.Basics" />

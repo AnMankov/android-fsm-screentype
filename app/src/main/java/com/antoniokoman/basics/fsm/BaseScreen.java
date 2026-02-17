@@ -3,15 +3,19 @@ package com.antoniokoman.basics.fsm;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.antoniokoman.basics.app.AppTheme;
+
 public abstract class BaseScreen implements Screen {
     protected FrameLayout cachedView; // Сразу фиксируем тип, чтобы не кастить постоянно
     protected ScreenStateListener listener;
 
     // Берем density из контекста напрямую — так надежнее
     protected int dp(int value) {
-        float density = cachedView != null ?
-                cachedView.getResources().getDisplayMetrics().density : 2.0f; // 2.0f как fallback
-        return (int) (value * density);
+        if (cachedView != null) {
+            return AppTheme.dp(cachedView.getContext(), value);
+        }
+        // fallback на случай, если кто-то вызовет dp() до onEnter
+        return value * 2; // или 0, или бросить IllegalStateException — как тебе удобнее
     }
 
     @Override

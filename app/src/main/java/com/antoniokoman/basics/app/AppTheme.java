@@ -1,29 +1,50 @@
 package com.antoniokoman.basics.app;
 
-import android.graphics.Color;
+import android.content.Context;
+
+import androidx.annotation.DimenRes;
+import androidx.core.content.ContextCompat;
+
+import com.antoniokoman.basics.R;
 
 public final class AppTheme {
-    // 1. Цветовая палитра (светлая и чистая)
-    public static final int COLOR_BACKGROUND = Color.parseColor("#F5F7F9");
-    public static final int COLOR_ACCENT_SOFT = Color.parseColor("#C8E6C9"); // Зеленый для FAB
-    public static final int COLOR_ICON_TINT = Color.parseColor("#424242");
-
-    public static final int COLOR_TEXT_MAIN = Color.parseColor("#212121");
-    public static final int COLOR_TEXT_SECONDARY = Color.parseColor("#757575");
-
-    // 2. Геометрия (скругления и рамки)
-    public static final int RADIUS_STANDARD_DP = 16;
-    public static final int STROKE_WIDTH_DP = 2;        // Тонкий контур для эффекта слоев
-    public static final float ALPHA_DECORATIVE = 0.2f;  // Легкая прозрачность центральной иконки
-
-    // 3. Тени и слои
-    public static final float ELEVATION_FAB_DP = 6f;
-    public static final float ELEVATION_CARD_DP = 2f;
-    public static final int LAYER_OFFSET_DP = 12;       // Смещение карточек в стеке
-
-    // 4. Размеры элементов
-    public static final int ICON_SIZE_BIG_DP = 48;
-    public static final int ICON_SIZE_FAB_DP = 28;
 
     private AppTheme() {}
+
+    // --- Цвета ---
+
+    public static int backgroundColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_background);
+    }
+
+    public static int accentSoftColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_accent_soft);
+    }
+
+    public static int iconTintColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_icon_tint);
+    }
+
+    public static int textMainColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_text_main);
+    }
+
+    public static int textSecondaryColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_text_secondary);
+    }
+
+    // --- Размеры из dimens ---
+
+    public static int dimenPx(Context context, @DimenRes int resId) {
+        return context.getResources().getDimensionPixelSize(resId);
+    }
+
+    // Если иногда всё-таки нужен "сырый" dp → px
+    public static int dp(Context context, int value) {
+        float density = context.getResources().getDisplayMetrics().density;
+        return (int) (value * density);
+    }
+
+    // Прозрачности и прочее, чего нет смысла тащить в ресурсы
+    public static final float ALPHA_DECORATIVE = 0.2f;
 }

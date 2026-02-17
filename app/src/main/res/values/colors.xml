@@ -2,4 +2,14 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Базовый фон -->
+    <color name="app_background">#F5F7F9</color>
+
+    <!-- Акцентные -->
+    <color name="app_accent_soft">#C8E6C9</color>
+    <color name="app_icon_tint">#424242</color>
+
+    <!-- Текст -->
+    <color name="app_text_main">#212121</color>
+    <color name="app_text_secondary">#757575</color>
 </resources>
