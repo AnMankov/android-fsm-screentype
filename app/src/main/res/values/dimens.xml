@@ -47,5 +47,7 @@
     <dimen name="appbar_icon_size_tablet">28dp</dimen>
     <dimen name="appbar_icon_vertical_offset">1dp</dimen>
 
+    <!-- Минимальный touch target (Material: 48dp) -->
+    <dimen name="touch_target_min">48dp</dimen>
 
 </resources>

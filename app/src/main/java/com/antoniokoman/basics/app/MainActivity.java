@@ -1,8 +1,13 @@
 package com.antoniokoman.basics.app;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
@@ -93,4 +98,34 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed(); //система берет верхний экран, выбрасывает его и показывает тот что лежал под ним, если под ним ничего, то приложение закрывается
         }
     }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                int[] location = new int[2];
+                v.getLocationOnScreen(location);
+                int x = (int) ev.getRawX() + v.getLeft() - location[0];
+                int y = (int) ev.getRawY() + v.getTop() - location[1];
+
+                if (x < v.getLeft() || x > v.getRight()
+                        || y < v.getTop() || y > v.getBottom()) {
+                    hideKeyboardAndClearFocus(v);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private void hideKeyboardAndClearFocus(View view) {
+        view.clearFocus();
+        InputMethodManager imm =
+                (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+
 }

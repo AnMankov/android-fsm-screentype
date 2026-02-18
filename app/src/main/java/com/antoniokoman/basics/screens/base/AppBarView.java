@@ -57,17 +57,24 @@ public final class AppBarView extends FrameLayout {
         row.setPadding(horizontalPadding, 0, horizontalPadding, 0);
 
         navIcon = new ImageView(context);
-        int iconSize = AppTheme.dimenPx(
+
+        int iconVisualSize = AppTheme.dimenPx(
                 context,
                 isExpanded ? R.dimen.appbar_icon_size_tablet
                         : R.dimen.appbar_icon_size_phone
         );
-        LinearLayout.LayoutParams navLp =
-                new LinearLayout.LayoutParams(iconSize, iconSize);
 
-// лёгкий сдвиг вниз, чтобы визуально центр совпал с текстом
+        int touchSize = AppTheme.dimenPx(context, R.dimen.touch_target_min);
+        int padding = (touchSize - iconVisualSize) / 2;
+        navIcon.setPadding(padding, padding, padding, padding);
+
+        LinearLayout.LayoutParams navLp =
+                new LinearLayout.LayoutParams(touchSize, touchSize);
         navLp.topMargin = AppTheme.dimenPx(context, R.dimen.appbar_icon_vertical_offset);
+
+        navIcon.setScaleType(ImageView.ScaleType.CENTER);
         row.addView(navIcon, navLp);
+
 
 
         titleView = new TextView(context);
@@ -116,26 +123,25 @@ public final class AppBarView extends FrameLayout {
         boolean isExpanded = getScreenWidthDp(getContext()) >=
                 getContext().getResources().getInteger(R.integer.width_expanded_min_dp);
 
-        int size = AppTheme.dimenPx(
+        int iconVisualSize = AppTheme.dimenPx(
                 getContext(),
                 isExpanded ? R.dimen.appbar_icon_size_tablet
                         : R.dimen.appbar_icon_size_phone
         );
+        int touchSize = AppTheme.dimenPx(getContext(), R.dimen.touch_target_min);
+        int padding = (touchSize - iconVisualSize) / 2;
 
         LinearLayout.LayoutParams lp =
-                new LinearLayout.LayoutParams(size, size);
+                new LinearLayout.LayoutParams(touchSize, touchSize);
         lp.leftMargin = AppTheme.dimenPx(getContext(), R.dimen.appbar_action_gap);
         lp.topMargin = AppTheme.dimenPx(getContext(), R.dimen.appbar_icon_vertical_offset);
+
+        action.setScaleType(ImageView.ScaleType.CENTER);
+        action.setPadding(padding, padding, padding, padding);
         action.setImageResource(resId);
         action.setColorFilter(AppTheme.iconTintColor(getContext()));
         action.setOnClickListener(listener);
         actionsContainer.addView(action, lp);
-    }
-
-    private boolean isTablet(Context context) {
-        int widthDp = getScreenWidthDp(context);
-        int expandedMin = context.getResources().getInteger(R.integer.width_expanded_min_dp);
-        return widthDp >= expandedMin;
     }
 
     public void clearActions() {

@@ -6,4 +6,7 @@
     <string name="cat_list_title">Категории</string>
     <string name="cat_list_empty">Здесь пока нет категорий!\nНажмите + чтобы добавить.</string>
     <string name="cat_list_add_hint">Добавить категорию</string>
+    <string name="cat_create_title">Новая категория</string>
+    <string name="cat_create_name_label">Название категории</string>
+    <string name="cat_create_name_hint">Введите название</string>
 </resources>
