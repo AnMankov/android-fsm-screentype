@@ -26,16 +26,11 @@ public class CategoryCreateScreen extends BaseContentScreen {
 
     private final Repository repo = Repository.getInstance();
 
-    // 1. AppBar
-
     @Override
     protected AppBarView createAppBar(Context context) {
         AppBarView appBar = new AppBarView(context);
         appBar.setTitle(context.getString(R.string.cat_create_title));
-
-        // Назад → PR_BACK (правило 7 в MainActivity)
-        appBar.setNavigationIcon(R.drawable.ic_menu, v -> onBackPressed());
-
+        appBar.setNavigationIcon(R.drawable.outline_arrow_back, v -> onBackPressed());
         return appBar;
     }
 
@@ -44,28 +39,24 @@ public class CategoryCreateScreen extends BaseContentScreen {
         if (listener != null) listener.onScreenStateChanged(CatCreateState.PR_BACK);
     }
 
-    // 2. Контент
-
     @Override
     protected void onRenderContent(FrameLayout contentContainer) {
         Context context = contentContainer.getContext();
         boolean expanded = isExpanded(context);
 
-        // Центрируем форму
         LinearLayout container = new LinearLayout(context);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setGravity(Gravity.CENTER);
+        container.setGravity(Gravity.TOP);
         FrameLayout.LayoutParams rootLp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         );
         contentContainer.addView(container, rootLp);
 
-        // Внутренний столбец (заголовок + поле)
         LinearLayout form = new LinearLayout(context);
         form.setOrientation(LinearLayout.VERTICAL);
-        form.setGravity(Gravity.CENTER_HORIZONTAL);
-        int horizontalPadding = AppTheme.dp(context, 24);
+        form.setGravity(Gravity.START);
+        int horizontalPadding = AppTheme.dimenPx(context, R.dimen.cat_create_horizontal_padding);
         form.setPadding(horizontalPadding, 0, horizontalPadding, 0);
         container.addView(form, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -76,6 +67,7 @@ public class CategoryCreateScreen extends BaseContentScreen {
         TextView label = new TextView(context);
         label.setText(context.getString(R.string.cat_create_name_label));
         label.setTextColor(AppTheme.textMainColor(context));
+
         float labelSizeSp = context.getResources()
                 .getDimension(expanded
                         ? R.dimen.empty_title_tablet
@@ -83,7 +75,17 @@ public class CategoryCreateScreen extends BaseContentScreen {
                 / context.getResources().getDisplayMetrics().scaledDensity;
         label.setTextSize(labelSizeSp);
         label.setGravity(Gravity.START);
-        label.setPadding(0, AppTheme.dp(context, expanded ? 32 : 24), 0, AppTheme.dp(context, 8));
+
+        int labelTopPadding = AppTheme.dimenPx(
+                context,
+                expanded
+                        ? R.dimen.cat_create_label_top_padding_tablet
+                        : R.dimen.cat_create_label_top_padding_phone
+        );
+        int labelBottomPadding =
+                AppTheme.dimenPx(context, R.dimen.cat_create_label_bottom_padding);
+        label.setPadding(0, labelTopPadding, 0, labelBottomPadding);
+
         form.addView(label, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -95,7 +97,7 @@ public class CategoryCreateScreen extends BaseContentScreen {
         nameEdit.setTextColor(AppTheme.textMainColor(context));
         nameEdit.setHintTextColor(AppTheme.textSecondaryColor(context));
         nameEdit.setSingleLine(true);
-        int pad = AppTheme.dp(context, 12);
+        int pad = AppTheme.dimenPx(context, R.dimen.cat_create_field_padding);
         nameEdit.setPadding(pad, pad, pad, pad);
         nameEdit.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 
@@ -121,7 +123,7 @@ public class CategoryCreateScreen extends BaseContentScreen {
 
     @Override
     protected void onFabClick() {
-        // не будет вызван, т.к. hasFab() == false
+        // не будет вызван
     }
 
     @Override
@@ -129,3 +131,4 @@ public class CategoryCreateScreen extends BaseContentScreen {
         return CatCreateState.IDLE;
     }
 }
+

@@ -50,4 +50,11 @@
     <!-- Минимальный touch target (Material: 48dp) -->
     <dimen name="touch_target_min">48dp</dimen>
 
+    <!-- Category create screen -->
+    <dimen name="cat_create_horizontal_padding">24dp</dimen>
+    <dimen name="cat_create_label_top_padding_phone">24dp</dimen>
+    <dimen name="cat_create_label_top_padding_tablet">32dp</dimen>
+    <dimen name="cat_create_label_bottom_padding">8dp</dimen>
+    <dimen name="cat_create_field_padding">12dp</dimen>
+
 </resources>
