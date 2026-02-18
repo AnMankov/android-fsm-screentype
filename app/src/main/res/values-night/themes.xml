@@ -1,9 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.Basics" parent="Theme.Material3.DayNight.NoActionBar">
+
+    <style name="Base.Theme.Basics" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@color/app_bar_background</item>
-        <!-- важное отличие от светлой темы -->
         <item name="android:windowLightStatusBar">false</item>
+
+        <item name="textInputStyle">@style/Widget.Basics.TextInputLayout.Outlined</item>
     </style>
 
     <style name="Theme.Basics" parent="Base.Theme.Basics" />
+
+    <style name="Widget.Basics.TextInputLayout.Outlined"
+        parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 </resources>
