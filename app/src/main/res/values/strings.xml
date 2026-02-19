@@ -18,5 +18,9 @@
     <string name="cat_create_icon_item_cd">Иконка категории</string>
     <string name="cat_create_icon_preview_selected">Иконка категории выбрана</string>
     <string name="cat_create_icon_custom">Использовать свою иконку</string>
+    <string name="cat_create_color_label">Цвет</string>
+    <string name="cat_create_color_hint">Выберите цвет</string>
+    <string name="cat_create_color_item_cd">Вариант цвета</string>
+    <string name="cat_create_action_save">СОХРАНИТЬ</string>
 
 </resources>

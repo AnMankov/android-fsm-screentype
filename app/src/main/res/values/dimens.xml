@@ -62,5 +62,10 @@
     <dimen name="icon_size_medium">40dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
 
+    <dimen name="textfield_corner_radius">4dp</dimen> <!-- подбери под TextInputLayout -->
+    <dimen name="textfield_stroke_width">1dp</dimen>
+
+    <dimen name="button_height_primary">48dp</dimen>
+
 
 </resources>

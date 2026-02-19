@@ -6,8 +6,13 @@
     <!-- Базовый фон (тёмная тема) -->
     <color name="app_background">#121212</color>
 
-    <!-- Акцентные (под твой C8E6C9) -->
-    <!-- Чуть более тёмный зелёный, чтобы не был выцветшим на тёмном -->
+    <!-- Поверхность под карточки/поля -->
+    <color name="app_surface">#1E1E1E</color>
+
+    <!-- Контур для текстовых полей / кастомных боксов -->
+    <item name="app_outline" type="color">@color/text_input_outline_colors</item>
+
+    <!-- Акцентные -->
     <color name="app_accent_soft">#3C4E2C</color>
 
     <!-- Иконки/контролы на тёмном фоне -->
