@@ -1,6 +1,8 @@
 package com.antoniokoman.basics.app;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 
 import androidx.annotation.DimenRes;
 import androidx.core.content.ContextCompat;
@@ -54,6 +56,13 @@ public final class AppTheme {
     public static int dp(Context context, int value) {
         float density = context.getResources().getDisplayMetrics().density;
         return (int) (value * density);
+    }
+
+    public static Drawable circleBackground(Context context) {
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.OVAL);
+        shape.setColor(AppTheme.accentSoftColor(context)); // или другой цвет
+        return shape;
     }
 
     // Прозрачности и прочее, чего нет смысла тащить в ресурсы

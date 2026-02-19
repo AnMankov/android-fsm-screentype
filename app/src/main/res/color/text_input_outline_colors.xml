@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Рамка при фокусе -->
+    <item
+        android:state_focused="true"
+        android:color="@color/app_text_main"/>
+
+    <!-- Рамка по умолчанию (без фокуса) -->
+    <item
+        android:color="@color/app_text_secondary"/>
+</selector>

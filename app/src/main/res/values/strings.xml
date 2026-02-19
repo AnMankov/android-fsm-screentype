@@ -9,4 +9,14 @@
     <string name="cat_create_title">Новая категория</string>
     <string name="cat_create_name_label">Название категории</string>
     <string name="cat_create_name_hint">Введите название</string>
+    <string name="cat_create_description_label">Описание (необязательно)</string>
+    <string name="cat_create_description_hint">Введите описание</string>
+    <string name="cat_create_icon_title">Иконка категории</string>
+    <string name="cat_create_icon_hint">Нажмите, чтобы выбрать иконку</string>
+    <string name="cat_create_icon_preview_default">Иконка категории по умолчанию</string>
+    <string name="cat_create_icon_picker_title">Выберите иконку</string>
+    <string name="cat_create_icon_item_cd">Иконка категории</string>
+    <string name="cat_create_icon_preview_selected">Иконка категории выбрана</string>
+    <string name="cat_create_icon_custom">Использовать свою иконку</string>
+
 </resources>

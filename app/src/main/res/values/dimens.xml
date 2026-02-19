@@ -57,4 +57,10 @@
     <dimen name="cat_create_label_bottom_padding">8dp</dimen>
     <dimen name="cat_create_field_padding">12dp</dimen>
 
+    <dimen name="form_max_width_expanded">560dp</dimen>
+
+    <dimen name="icon_size_medium">40dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+
+
 </resources>
