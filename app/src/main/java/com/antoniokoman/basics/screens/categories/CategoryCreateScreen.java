@@ -3,6 +3,7 @@ package com.antoniokoman.basics.screens.categories;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextThemeWrapper;
@@ -35,7 +36,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 public class CategoryCreateScreen extends BaseContentScreen {
 
     private boolean isValid = false;
-
+    private String nameText = "";
+    private String descText = "";
+    private int selectedColor = 0xFFF44336;
+    private int selectedIconResId = R.drawable.ic_category_default;
     private final Repository repo = Repository.getInstance();
 
     @Override
@@ -113,14 +117,6 @@ public class CategoryCreateScreen extends BaseContentScreen {
         nameField.setLabel(R.string.cat_create_name_label);
         nameField.setPlaceholder(R.string.cat_create_name_hint);
 
-        nameField.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                isValid = !s.toString().trim().isEmpty();
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
-
         form.addView(nameField, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -157,7 +153,7 @@ public class CategoryCreateScreen extends BaseContentScreen {
                 showIconPickerBottomSheet(context, iconField);
 
         iconField.getLayout().setStartIconDrawable(
-                context.getDrawable(R.drawable.ic_category_default)
+                context.getDrawable(selectedIconResId)
         );
         iconField.getLayout().setStartIconContentDescription(
                 context.getString(R.string.cat_create_icon_preview_default)
@@ -177,7 +173,6 @@ public class CategoryCreateScreen extends BaseContentScreen {
         ((LinearLayout.LayoutParams) iconField.getLayoutParams()).bottomMargin = betweenFields;
 
         // 4. Палитра с собственной рамкой (без TextInputLayout)
-        // Контейнер с рамкой
         LinearLayout colorBox = new LinearLayout(context);
         colorBox.setOrientation(LinearLayout.HORIZONTAL);
         colorBox.setGravity(Gravity.CENTER_VERTICAL);
@@ -186,7 +181,6 @@ public class CategoryCreateScreen extends BaseContentScreen {
         int boxPaddingV = AppTheme.dimenPx(context, R.dimen.spacing_small);
         colorBox.setPadding(boxPaddingH, boxPaddingV, boxPaddingH, boxPaddingV);
 
-        // Фон-рамка как у outlined поля
         Drawable boxBg = AppTheme.roundedBox(
                 AppTheme.backgroundColor(context),
                 AppTheme.outlineColor(context),
@@ -195,7 +189,6 @@ public class CategoryCreateScreen extends BaseContentScreen {
         );
         colorBox.setBackground(boxBg);
 
-        // Палитра внутри
         HorizontalScrollView hsv = new HorizontalScrollView(context);
         hsv.setHorizontalScrollBarEnabled(false);
 
@@ -228,13 +221,11 @@ public class CategoryCreateScreen extends BaseContentScreen {
                 0xFF000000  // Black
         };
 
-        final int[] selectedColor = { colors[0] };
         final ImageView[] checkViews = new ImageView[colors.length];
 
         for (int i = 0; i < colors.length; i++) {
             int color = colors[i];
 
-            // Контейнер под кружок + галочку
             FrameLayout dotContainer = new FrameLayout(context);
             LinearLayout.LayoutParams lpDot = new LinearLayout.LayoutParams(
                     colorItemSize,
@@ -244,7 +235,6 @@ public class CategoryCreateScreen extends BaseContentScreen {
             lpDot.rightMargin = colorItemMargin;
             dotContainer.setLayoutParams(lpDot);
 
-            // Сам кружок
             View dot = new View(context);
             FrameLayout.LayoutParams dotLp = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -261,10 +251,8 @@ public class CategoryCreateScreen extends BaseContentScreen {
 
             dotContainer.addView(dot, dotLp);
 
-            // Галочка поверх
             ImageView check = new ImageView(context);
-            check.setImageResource(R.drawable.ic_check); // добавь такую иконку в ресурсы
-            // Галочку красим в цвет фона экрана, чтобы она читалась на ярких цветах
+            check.setImageResource(R.drawable.ic_check);
             check.setColorFilter(AppTheme.backgroundColor(context));
             FrameLayout.LayoutParams checkLp = new FrameLayout.LayoutParams(
                     colorItemSize / 2,
@@ -272,18 +260,19 @@ public class CategoryCreateScreen extends BaseContentScreen {
             );
             checkLp.gravity = Gravity.CENTER;
             check.setLayoutParams(checkLp);
-            check.setVisibility(i == 0 ? View.VISIBLE : View.GONE);
+
+            // галочка на выбранном цвете
+            check.setVisibility(colors[i] == selectedColor ? View.VISIBLE : View.GONE);
 
             dotContainer.addView(check);
             checkViews[i] = check;
 
             int index = i;
             dotContainer.setOnClickListener(v -> {
-                selectedColor[0] = colors[index];
+                selectedColor = colors[index];
                 for (int j = 0; j < checkViews.length; j++) {
                     checkViews[j].setVisibility(j == index ? View.VISIBLE : View.GONE);
                 }
-                // TODO: сохранить selectedColor[0] при сохранении категории
             });
 
             colorsRow.addView(dotContainer);
@@ -304,27 +293,23 @@ public class CategoryCreateScreen extends BaseContentScreen {
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         ((LinearLayout.LayoutParams) colorBox.getLayoutParams()).bottomMargin = betweenFields;
-        // 5. Кнопка "СОХРАНИТЬ" под палитрой
+
+        // 5. Кнопка "СОХРАНИТЬ"
         TextView saveButton = new TextView(context);
-        saveButton.setText(R.string.cat_create_action_save); // "СОХРАНИТЬ"
+        saveButton.setText(R.string.cat_create_action_save);
         saveButton.setAllCaps(true);
         saveButton.setGravity(Gravity.CENTER);
 
-// Размеры и фон как у primary-кнопки
         int saveButtonHeight = AppTheme.dimenPx(context, R.dimen.button_height_primary);
-        int saveButtonRadius = AppTheme.dimenPx(context, R.dimen.radius_standard);
-        int saveButtonStroke = 0;
-
         Drawable saveBg = AppTheme.roundedBox(
                 ContextCompat.getColor(context, R.color.app_primary_button),
                 0,
                 0,
-                AppTheme.dimenPx(context, R.dimen.radius_standard)
+                AppTheme.dimenPx(context, R.dimen.textfield_corner_radius)
         );
         saveButton.setBackground(saveBg);
-        saveButton.setTextColor(AppTheme.fabIconTintColor(context)); // тёмный текст на светлом акценте
+        saveButton.setTextColor(AppTheme.fabIconTintColor(context));
 
-// Выравнивание по ширине с edit'ами: тот же form, без доп. паддингов
         LinearLayout.LayoutParams saveLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 saveButtonHeight
@@ -332,37 +317,66 @@ public class CategoryCreateScreen extends BaseContentScreen {
         saveLp.bottomMargin = betweenFields;
         form.addView(saveButton, saveLp);
 
-// Состояние enabled/disabled
+        // Восстановление текстов и валидности
+        nameField.setText(nameText);
+        isValid = !nameText.trim().isEmpty();
         saveButton.setEnabled(isValid);
         saveButton.setAlpha(isValid ? 1f : 0.4f);
 
-// Обновление состояния при изменении названия
+        descField.setText(descText);
+
+        // Watcher для имени
         nameField.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                isValid = !s.toString().trim().isEmpty();
+                nameText = s.toString();
+                isValid = !nameText.trim().isEmpty();
                 saveButton.setEnabled(isValid);
                 saveButton.setAlpha(isValid ? 1f : 0.4f);
             }
             @Override public void afterTextChanged(Editable s) {}
         });
 
-// Клик по кнопке
+        // Watcher для описания
+        descField.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                descText = s.toString();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        // Клик по кнопке
         saveButton.setOnClickListener(v -> {
             if (!isValid) return;
-            // TODO: собрать имя, описание, иконку, selectedColor и сохранить
+
+            String name = nameText.trim();
+            String description = descText.trim();
+
+            // Цвет: int -> "#RRGGBB"
+            String colorString = String.format("#%06X", (0xFFFFFF & selectedColor)); // без альфы[web:104][web:109]
+
+            // Иконка: entryName ресурса
+            String iconEntryName = context.getResources()
+                    .getResourceEntryName(selectedIconResId); // "icons_architecture"[web:112][web:116]
+
+            repo.addCategory(
+                    name,
+                    description,
+                    colorString,
+                    iconEntryName
+            );
+
             if (listener != null) {
                 listener.onScreenStateChanged(CatCreateState.PR_CRE);
             }
         });
-
     }
 
     private void showIconPickerBottomSheet(Context context, OutlinedTextFieldView iconField) {
         BottomSheetDialog dialog = new BottomSheetDialog(context);
         Context themed = new ContextThemeWrapper(context, R.style.Theme_Basics);
 
-        // Скроллируемый контейнер
         ScrollView scroll = new ScrollView(themed);
         scroll.setFillViewport(true);
 
@@ -413,6 +427,8 @@ public class CategoryCreateScreen extends BaseContentScreen {
             );
 
             btn.setOnClickListener(v -> {
+                selectedIconResId = resId;
+
                 iconField.getLayout().setStartIconDrawable(
                         context.getDrawable(resId)
                 );
@@ -532,5 +548,25 @@ public class CategoryCreateScreen extends BaseContentScreen {
     @Override
     public ScreenState getState() {
         return CatCreateState.IDLE;
+    }
+
+    @Override
+    public void saveState(Bundle out) {
+        out.putString("nameText", nameText);
+        out.putString("descText", descText);
+        out.putInt("selectedColor", selectedColor);
+        out.putInt("selectedIconResId", selectedIconResId);
+    }
+
+    @Override
+    public void restoreState(Bundle state) {
+        if (state == null) return;
+        nameText = state.getString("nameText", "");
+        descText = state.getString("descText", "");
+        selectedColor = state.getInt("selectedColor", 0xFFF44336);
+        selectedIconResId = state.getInt(
+                "selectedIconResId",
+                R.drawable.ic_category_default
+        );
     }
 }

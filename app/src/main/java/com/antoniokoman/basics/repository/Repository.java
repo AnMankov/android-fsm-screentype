@@ -41,4 +41,25 @@ public class Repository {
         if (instance == null) instance = new Repository();
         return instance;
     }
+
+    // Удобный helper для добавления категории
+    public CategoryList.CategoryData addCategory(
+            String name,
+            String description,
+            String color,
+            String icon
+    ) {
+        CategoryList.CategoryData cat = new CategoryList.CategoryData();
+        cat.name = name;
+        cat.description = description;
+        cat.color = color;
+        cat.icon = icon;
+        cat.converterIndex = 0;
+        cat.converters = new ArrayList<>();
+
+        catList.categories.add(cat);
+        catList.index = catList.categories.size() - 1;
+
+        return cat;
+    }
 }

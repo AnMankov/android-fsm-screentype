@@ -6,7 +6,7 @@ import com.antoniokoman.basics.screens.categories.CategoryEditorScreen;
 import com.antoniokoman.basics.screens.categories.CategoryListScreen;
 import com.antoniokoman.basics.screens.converters.ConverterCreateScreen;
 import com.antoniokoman.basics.screens.converters.ConverterEditorScreen;
-import com.antoniokoman.basics.screens.converters.ConverterViewScreen;
+import com.antoniokoman.basics.screens.converters.ConvertersViewScreen;
 
 public enum ScreenType {
     CAT_LIST {
@@ -19,7 +19,7 @@ public enum ScreenType {
         @Override Screen create() { return new CategoryEditorScreen(); }
     },
     CONV_VIEW {
-        @Override Screen create() { return new ConverterViewScreen(); }
+        @Override Screen create() { return new ConvertersViewScreen(); }
     },
     CONV_CREATE {
         @Override Screen create() { return new ConverterCreateScreen(); }

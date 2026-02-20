@@ -6,10 +6,12 @@
     <!-- Базовый фон -->
     <color name="app_background">#F5F7F9</color>
 
-    <!-- Поверхность под карточки/поля -->
+    <!-- Поверхность под карточки/поля (приподнятая) -->
+    <color name="app_background_elevated">#FFFFFFFF</color>
+
+    <!-- Поверхность под карточки/поля (можно оставить как alias) -->
     <color name="app_surface">#FFFFFFFF</color>
 
-    <!-- Контур для текстовых полей / кастомных боксов -->
     <item name="app_outline" type="color">@color/text_input_outline_colors</item>
 
     <!-- Акцентные -->
@@ -25,7 +27,6 @@
     <color name="app_bar_background">#E7E7EE</color>
     <color name="app_bar_on_background">#212121</color>
 
-    <!-- colors.xml -->
-    <color name="app_primary_button">#E6C58F</color> <!-- на тон темнее app_accent_soft -->
-
+    <!-- Основная кнопка -->
+    <color name="app_primary_button">#E6C58F</color>
 </resources>

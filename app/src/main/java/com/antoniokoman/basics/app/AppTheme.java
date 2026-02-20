@@ -101,6 +101,11 @@ public final class AppTheme {
         return d;
     }
 
+    public static int backgroundElevatedColor(Context context) {
+        return ContextCompat.getColor(context, R.color.app_background_elevated);
+    }
+
+
     // Прозрачности и прочее, чего нет смысла тащить в ресурсы
     public static final float ALPHA_DECORATIVE = 0.9f;
 }

@@ -56,11 +56,16 @@
     <dimen name="cat_create_label_top_padding_tablet">32dp</dimen>
     <dimen name="cat_create_label_bottom_padding">8dp</dimen>
     <dimen name="cat_create_field_padding">12dp</dimen>
+    <dimen name="cat_card_badge_width">56dp</dimen>
+    <dimen name="cat_card_height_min">72dp</dimen>
 
     <dimen name="form_max_width_expanded">560dp</dimen>
 
     <dimen name="icon_size_medium">40dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
+
+    <dimen name="icon_circle_size">32dp</dimen>
+    <dimen name="spacing_extra_small">4dp</dimen>
 
     <dimen name="textfield_corner_radius">4dp</dimen> <!-- подбери под TextInputLayout -->
     <dimen name="textfield_stroke_width">1dp</dimen>

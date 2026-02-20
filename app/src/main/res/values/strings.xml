@@ -6,6 +6,8 @@
     <string name="cat_list_title">Категории</string>
     <string name="cat_list_empty">Здесь пока нет категорий!\nНажмите + чтобы добавить.</string>
     <string name="cat_list_add_hint">Добавить категорию</string>
+    <string name="cat_list_counter_format">%1$d конвертер(ов)</string>
+
     <string name="cat_create_title">Новая категория</string>
     <string name="cat_create_name_label">Название категории</string>
     <string name="cat_create_name_hint">Введите название</string>
@@ -22,5 +24,17 @@
     <string name="cat_create_color_hint">Выберите цвет</string>
     <string name="cat_create_color_item_cd">Вариант цвета</string>
     <string name="cat_create_action_save">СОХРАНИТЬ</string>
+
+    <!-- ConvertersViewScreen -->
+    <string name="conv_view_title_fallback">Конвертеры</string>
+    <string name="conv_view_no_category">Категория не выбрана</string>
+    <string name="conv_view_section_title">Конвертеры в категории %1$s</string>
+    <string name="conv_view_delete_button">Удалить: %1$s</string>
+    <string name="conv_view_create_button">Создать новый конвертер</string>
+    <string name="conv_view_back_to_categories">Назад к категориям</string>
+    <string name="conv_view_delete_title">Удаление</string>
+    <string name="conv_view_delete_message">Точно удалить этот конвертер?</string>
+    <string name="conv_view_delete_yes">Да</string>
+    <string name="conv_view_delete_no">Нет</string>
 
 </resources>
