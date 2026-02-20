@@ -71,6 +71,7 @@
     <dimen name="textfield_stroke_width">1dp</dimen>
 
     <dimen name="button_height_primary">48dp</dimen>
-
+    <dimen name="elevation_small">2dp</dimen>
+    <dimen name="menu_stroke_width">2dp</dimen>
 
 </resources>

@@ -25,6 +25,17 @@
     <string name="cat_create_color_item_cd">Вариант цвета</string>
     <string name="cat_create_action_save">СОХРАНИТЬ</string>
 
+    <string name="cat_menu_edit">Редактировать</string>
+    <string name="cat_menu_duplicate">Дублировать</string>
+    <string name="cat_menu_delete">Удалить</string>
+    <string name="cat_menu_cd">Меню категории %1$s</string>
+
+
+    <string name="cat_delete_title">Удалить категорию</string>
+    <string name="cat_delete_message">Удалить категорию \"%1$s\"?</string>
+    <string name="cat_delete_positive">Удалить</string>
+    <string name="cat_delete_negative">Отмена</string>
+
     <!-- ConvertersViewScreen -->
     <string name="conv_view_title_fallback">Конвертеры</string>
     <string name="conv_view_no_category">Категория не выбрана</string>

@@ -31,4 +31,7 @@
 
     <!-- Основная кнопка -->
     <color name="app_primary_button">#5A6B44</color>
+
+    <color name="menu_shadow_color">#33000000</color>
+    <color name="menu_border_color">#80000000</color>
 </resources>

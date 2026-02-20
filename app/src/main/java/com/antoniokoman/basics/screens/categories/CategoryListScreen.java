@@ -4,12 +4,15 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.PopupMenu;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.antoniokoman.basics.R;
@@ -23,6 +26,7 @@ import com.antoniokoman.basics.screens.base.BaseContentScreen;
 public class CategoryListScreen extends BaseContentScreen {
 
     private final Repository repo = Repository.getInstance();
+    private LinearLayout listContainer;
 
     // 1. AppBar для этого экрана
     @Override
@@ -156,6 +160,7 @@ public class CategoryListScreen extends BaseContentScreen {
         LinearLayout container = new LinearLayout(context);
         container.setOrientation(LinearLayout.VERTICAL);
         container.setGravity(Gravity.TOP);
+
         FrameLayout.LayoutParams rootLp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -175,6 +180,9 @@ public class CategoryListScreen extends BaseContentScreen {
         list.setOrientation(LinearLayout.VERTICAL);
         list.setGravity(Gravity.TOP);
 
+        // ВАЖНО: сохраняем ссылку после создания
+        this.listContainer = list;
+
         int horizontalPadding = AppTheme.dimenPx(context, R.dimen.cat_create_horizontal_padding);
         int topPadding = AppTheme.dimenPx(
                 context,
@@ -183,8 +191,9 @@ public class CategoryListScreen extends BaseContentScreen {
                         : R.dimen.cat_create_label_top_padding_phone
         );
         int betweenCards = AppTheme.dimenPx(context, R.dimen.spacing_medium);
+        int bottomPadding = topPadding;
 
-        list.setPadding(horizontalPadding, topPadding, horizontalPadding, 0);
+        list.setPadding(horizontalPadding, topPadding, horizontalPadding, bottomPadding);
 
         scrollView.addView(list, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -206,6 +215,7 @@ public class CategoryListScreen extends BaseContentScreen {
         }
     }
 
+
     // ----- CARD -----
 
     private android.view.View createCategoryCardView(
@@ -224,9 +234,7 @@ public class CategoryListScreen extends BaseContentScreen {
         int strokeWidth = AppTheme.dimenPx(context, R.dimen.textfield_stroke_width);
 
         int badgeWidth = AppTheme.dimenPx(context, R.dimen.cat_card_badge_width);
-        int iconSize = AppTheme.dimenPx(context, R.dimen.icon_size_medium);
         int iconPadding = AppTheme.dimenPx(context, R.dimen.spacing_extra_small);
-        int badgeInnerGap = AppTheme.dimenPx(context, R.dimen.spacing_small);
         int textVerticalGap = AppTheme.dimenPx(context, R.dimen.spacing_small);
         int rectSize = AppTheme.dimenPx(context, R.dimen.icon_circle_size);
 
@@ -239,11 +247,14 @@ public class CategoryListScreen extends BaseContentScreen {
             categoryColor = Color.parseColor("#FFDDAC");
         }
 
+        // --- корневая карточка ---
         LinearLayout card = new LinearLayout(context);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setClickable(true);
         card.setForeground(ContextCompat.getDrawable(context, R.drawable.bg_click_ripple));
+        card.setClipToPadding(false);
+        card.setClipChildren(false);
 
         int minHeight = AppTheme.dimenPx(context, R.dimen.cat_card_height_min);
         card.setMinimumHeight(minHeight);
@@ -257,7 +268,7 @@ public class CategoryListScreen extends BaseContentScreen {
                 cornerRadius
         ));
 
-        // --- левый бейдж ---
+        // --- левый бейдж (только иконка, без рамки) ---
         LinearLayout leftBadge = new LinearLayout(context);
         leftBadge.setOrientation(LinearLayout.VERTICAL);
         leftBadge.setGravity(Gravity.CENTER);
@@ -268,7 +279,6 @@ public class CategoryListScreen extends BaseContentScreen {
         );
         card.addView(leftBadge, leftBadgeLp);
 
-        // прямоугольник под иконкой
         GradientDrawable iconBg = new GradientDrawable();
         iconBg.setShape(GradientDrawable.RECTANGLE);
         iconBg.setColor(screenBg);
@@ -290,7 +300,6 @@ public class CategoryListScreen extends BaseContentScreen {
         iconLp.gravity = Gravity.CENTER;
         iconView.setLayoutParams(iconLp);
 
-        // внутренний отступ от прямоугольника
         iconView.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
         iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
@@ -307,41 +316,7 @@ public class CategoryListScreen extends BaseContentScreen {
 
         LinearLayout.LayoutParams iconSlotLp =
                 new LinearLayout.LayoutParams(rectSize, rectSize);
-        iconSlotLp.bottomMargin = badgeInnerGap;
         leftBadge.addView(iconContainer, iconSlotLp);
-
-        // прямоугольник под счётчиком
-        GradientDrawable countBg = new GradientDrawable();
-        countBg.setShape(GradientDrawable.RECTANGLE);
-        countBg.setColor(screenBg);
-        countBg.setCornerRadius(cornerRadius);
-
-        FrameLayout countContainer = new FrameLayout(context);
-        countContainer.setBackground(countBg);
-
-        FrameLayout.LayoutParams countContainerLp =
-                new FrameLayout.LayoutParams(rectSize, rectSize);
-        countContainerLp.gravity = Gravity.CENTER;
-
-        TextView countView = new TextView(context);
-        int convCount = cat.converters != null ? cat.converters.size() : 0;
-        countView.setText(String.valueOf(convCount));
-        countView.setTextColor(AppTheme.textMainColor(context));
-        countView.setTextSize(12);
-        countView.setGravity(Gravity.CENTER);
-
-        FrameLayout.LayoutParams countTextLp =
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT
-                );
-        countTextLp.gravity = Gravity.CENTER;
-
-        countContainer.addView(countView, countTextLp);
-
-        LinearLayout.LayoutParams countSlotLp =
-                new LinearLayout.LayoutParams(rectSize, rectSize);
-        leftBadge.addView(countContainer, countSlotLp);
 
         // --- центральный блок ---
         LinearLayout centerWrapper = new LinearLayout(context);
@@ -367,19 +342,32 @@ public class CategoryListScreen extends BaseContentScreen {
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 ));
 
+        // 1-я строка: имя категории
         TextView nameView = new TextView(context);
         nameView.setText(cat.name != null ? cat.name : "");
         nameView.setTextColor(AppTheme.textMainColor(context));
         nameView.setTextSize(16);
         nameView.setMaxLines(2);
+        content.addView(nameView);
+
+        // 2-я строка: convCount + описание
+        int convCount = cat.converters != null ? cat.converters.size() : 0;
+        String baseDesc = cat.description != null ? cat.description : "";
+        String convLabel = String.valueOf(convCount);
+
+        String finalDesc;
+        if (baseDesc.isEmpty()) {
+            finalDesc = convLabel;
+        } else {
+            finalDesc = "(" + convLabel + ")  -  " + baseDesc;
+        }
 
         TextView descView = new TextView(context);
-        descView.setText(cat.description != null ? cat.description : "");
+        descView.setText(finalDesc);
         descView.setTextColor(AppTheme.textSecondaryColor(context));
         descView.setTextSize(14);
         descView.setMaxLines(2);
 
-        content.addView(nameView);
         LinearLayout.LayoutParams descLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -387,7 +375,7 @@ public class CategoryListScreen extends BaseContentScreen {
         descLp.topMargin = textVerticalGap;
         content.addView(descView, descLp);
 
-        // --- правый бейдж ---
+        // --- правый бейдж (меню с толстой рамкой) ---
         LinearLayout rightBadge = new LinearLayout(context);
         rightBadge.setOrientation(LinearLayout.VERTICAL);
         rightBadge.setGravity(Gravity.CENTER);
@@ -398,11 +386,16 @@ public class CategoryListScreen extends BaseContentScreen {
         );
         card.addView(rightBadge, rightBadgeLp);
 
-        // прямоугольник под меню
         GradientDrawable menuBg = new GradientDrawable();
         menuBg.setShape(GradientDrawable.RECTANGLE);
+        // фон такой же, как у экрана
         menuBg.setColor(screenBg);
         menuBg.setCornerRadius(cornerRadius);
+
+        // заметная рамка вокруг меню
+        int borderColor = Color.parseColor("#80000000"); // 50% чёрного
+        int borderWidth = AppTheme.dimenPx(context, R.dimen.menu_stroke_width);
+        menuBg.setStroke(borderWidth, borderColor);
 
         FrameLayout menuContainer = new FrameLayout(context);
         menuContainer.setBackground(menuBg);
@@ -428,6 +421,11 @@ public class CategoryListScreen extends BaseContentScreen {
         menuContainer.addView(menuIcon, menuLp);
         rightBadge.addView(menuContainer, new LinearLayout.LayoutParams(rectSize, rectSize));
 
+        // contentDescription для accessibility
+        menuContainer.setContentDescription(
+                context.getString(R.string.cat_menu_cd, cat.name != null ? cat.name : "")
+        );
+
         // --- клики ---
         card.setOnClickListener(v -> {
             repo.catList.index = position;
@@ -437,7 +435,7 @@ public class CategoryListScreen extends BaseContentScreen {
         });
 
         rightBadge.setOnClickListener(v -> {
-            // TODO: PopupMenu
+            showCategoryMenu(context, v, cat, position);
         });
 
         // --- скруглённые бейджи ---
@@ -464,6 +462,141 @@ public class CategoryListScreen extends BaseContentScreen {
         return card;
     }
 
+    // ----- CONTEXT MENU -----
 
+    private void showCategoryMenu(
+            Context context,
+            android.view.View anchor,
+            Repository.CategoryList.CategoryData cat,
+            int position
+    ) {
+        PopupMenu popup = new PopupMenu(context, anchor);
+        popup.getMenuInflater().inflate(R.menu.categories_item_menu, popup.getMenu());
+
+        // ВКЛЮЧАЕМ иконки
+        try {
+            java.lang.reflect.Field mFieldPopup = popup.getClass().getDeclaredField("mPopup");
+            mFieldPopup.setAccessible(true);
+            Object mPopup = mFieldPopup.get(popup);
+            Class<?> popupClass = mPopup.getClass();
+            java.lang.reflect.Method setForceShowIcon =
+                    popupClass.getDeclaredMethod("setForceShowIcon", boolean.class);
+            setForceShowIcon.setAccessible(true);
+            setForceShowIcon.invoke(mPopup, true);
+        } catch (Exception e) {
+            // можно залогировать, но падать не нужно
+            e.printStackTrace();
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.action_edit) {
+                repo.catList.index = position;
+                if (listener != null) {
+                    listener.onScreenStateChanged(CatListState.PR_EDIT);
+                }
+                return true;
+            } else if (id == R.id.action_duplicate) {
+                duplicateCategory(position);
+                return true;
+            } else if (id == R.id.action_delete) {
+                confirmDeleteCategory(context, cat, position);
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
+    private void duplicateCategory(int position) {
+        Repository.CategoryList.CategoryData src = repo.catList.categories.get(position);
+
+        Repository.CategoryList.CategoryData copy = new Repository.CategoryList.CategoryData();
+        copy.name = src.name;
+        copy.description = src.description;
+        copy.color = src.color;
+        copy.icon = src.icon;
+        if (src.converters != null) {
+            copy.converters = new java.util.ArrayList<>(src.converters);
+        }
+
+        repo.catList.categories.add(position + 1, copy);
+
+        if (listContainer != null) {
+            refreshList(listContainer.getContext());
+        }
+    }
+
+
+
+
+    private void confirmDeleteCategory(
+            Context context,
+            Repository.CategoryList.CategoryData cat,
+            int position
+    ) {
+        String name = cat.name != null ? cat.name : "";
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.cat_delete_title)
+                .setMessage(
+                        context.getString(R.string.cat_delete_message, name)
+                )
+                .setPositiveButton(R.string.cat_delete_positive, (dialog, which) -> {
+                    deleteCategory(position);
+                })
+                .setNegativeButton(R.string.cat_delete_negative, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void deleteCategory(int position) {
+        if (position >= 0 && position < repo.catList.categories.size()) {
+            repo.catList.categories.remove(position);
+        }
+
+        if (repo.catList.categories.isEmpty()) {
+            // список опустел — показываем empty state вместо списка
+            FrameLayout root = listContainer != null
+                    ? (FrameLayout) listContainer.getParent().getParent()  // list -> ScrollView -> container
+                    : null;
+
+            if (root != null) {
+                root.removeAllViews();
+                renderEmptyState(root);
+            }
+        } else {
+            if (listContainer != null) {
+                refreshList(listContainer.getContext());
+            }
+        }
+    }
+
+
+
+
+    private void refreshList(Context context) {
+        if (listContainer == null) return;
+
+        listContainer.removeAllViews();
+
+        int betweenCards = AppTheme.dimenPx(context, R.dimen.spacing_medium);
+
+        for (int i = 0; i < repo.catList.categories.size(); i++) {
+            Repository.CategoryList.CategoryData cat = repo.catList.categories.get(i);
+            android.view.View card = createCategoryCardView(context, cat, i);
+
+            LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            if (i > 0) {
+                cardLp.topMargin = betweenCards;
+            }
+            listContainer.addView(card, cardLp);
+        }
+    }
 
 }
