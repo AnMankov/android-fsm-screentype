@@ -1,3 +1,5 @@
 <resources>
     <item name="tag_category_color" type="id" />
+    <item name="action_sort" type="id" />
+    <item name="tag_selection_circle" type="id" />
 </resources>

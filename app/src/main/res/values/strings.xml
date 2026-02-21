@@ -27,9 +27,11 @@
 
     <string name="cat_menu_edit">Редактировать</string>
     <string name="cat_menu_duplicate">Дублировать</string>
-    <string name="cat_menu_sort">Сортировка</string>
+    <string name="cat_menu_actions_sort">Сортировка</string>
     <string name="cat_menu_delete">Удалить</string>
     <string name="cat_menu_cd">Меню категории %1$s</string>
+    <string name="cat_selected_count">%1$d</string>
+    <string name="cat_menu_actions_select">Выбрать</string>
 
     <string name="cat_sort_title">Сортировка</string>
 
@@ -46,8 +48,13 @@
 
     <string name="cat_delete_title">Удалить категорию</string>
     <string name="cat_delete_message">Удалить категорию \"%1$s\"?</string>
+    <string name="cat_delete_message_multi">Удалить выбранные категории?</string>
     <string name="cat_delete_positive">Удалить</string>
     <string name="cat_delete_negative">Отмена</string>
+    <string name="cat_menu_actions_reorder">Изменить порядок</string>
+    <string name="cat_reorder_hint_title">Изменение порядка</string>
+    <string name="cat_reorder_hint_message">Удерживайте категорию и перетащите её, чтобы изменить порядок.</string>
+    <string name="cat_reorder_hint_ok">ПОНЯТНО</string>
 
     <!-- ConvertersViewScreen -->
     <string name="conv_view_title_fallback">Конвертеры</string>

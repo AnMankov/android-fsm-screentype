@@ -73,9 +73,8 @@ public final class AppBarView extends FrameLayout {
         navLp.topMargin = AppTheme.dimenPx(context, R.dimen.appbar_icon_vertical_offset);
 
         navIcon.setScaleType(ImageView.ScaleType.CENTER);
+        navIcon.setVisibility(GONE);
         row.addView(navIcon, navLp);
-
-
 
         titleView = new TextView(context);
         titleView.setTextColor(AppTheme.getAppBarContentColor(context));
@@ -139,7 +138,7 @@ public final class AppBarView extends FrameLayout {
         action.setScaleType(ImageView.ScaleType.CENTER);
         action.setPadding(padding, padding, padding, padding);
         action.setImageResource(resId);
-        action.setColorFilter(AppTheme.iconTintColor(getContext()));
+        action.setColorFilter(AppTheme.getAppBarContentColor(getContext()));
         action.setOnClickListener(listener);
         actionsContainer.addView(action, lp);
     }
@@ -153,7 +152,3 @@ public final class AppBarView extends FrameLayout {
         return (int) (dm.widthPixels / dm.density);
     }
 }
-
-
-
-

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/values/dimens.xml -->
 <resources>
 
     <!-- Скругления, обводки -->
@@ -18,8 +17,12 @@
     <!-- Иконки -->
     <dimen name="icon_size_big">48dp</dimen>
     <dimen name="icon_size_fab">28dp</dimen>
+    <dimen name="icon_size_medium">40dp</dimen>
+    <dimen name="icon_circle_size">32dp</dimen>
 
     <!-- Spacing -->
+    <dimen name="spacing_extra_small">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_medium">16dp</dimen>
     <dimen name="spacing_large">32dp</dimen>
     <dimen name="spacing_fab_margin">24dp</dimen>
@@ -50,7 +53,7 @@
     <!-- Минимальный touch target (Material: 48dp) -->
     <dimen name="touch_target_min">48dp</dimen>
 
-    <!-- Category create screen -->
+    <!-- Category create / card list -->
     <dimen name="cat_create_horizontal_padding">24dp</dimen>
     <dimen name="cat_create_label_top_padding_phone">24dp</dimen>
     <dimen name="cat_create_label_top_padding_tablet">32dp</dimen>
@@ -59,19 +62,19 @@
     <dimen name="cat_card_badge_width">56dp</dimen>
     <dimen name="cat_card_height_min">72dp</dimen>
 
+    <!-- Max width для форм на широких экранах -->
     <dimen name="form_max_width_expanded">560dp</dimen>
 
-    <dimen name="icon_size_medium">40dp</dimen>
-    <dimen name="spacing_small">8dp</dimen>
-
-    <dimen name="icon_circle_size">32dp</dimen>
-    <dimen name="spacing_extra_small">4dp</dimen>
-
-    <dimen name="textfield_corner_radius">4dp</dimen> <!-- подбери под TextInputLayout -->
+    <!-- TextField -->
+    <dimen name="textfield_corner_radius">4dp</dimen>
     <dimen name="textfield_stroke_width">1dp</dimen>
 
+    <!-- Buttons / menu -->
     <dimen name="button_height_primary">48dp</dimen>
     <dimen name="elevation_small">2dp</dimen>
     <dimen name="menu_stroke_width">2dp</dimen>
+
+    <!-- Multi-selection (кружок выбора на карточке) -->
+    <dimen name="selection_circle_size">36dp</dimen>
 
 </resources>
