@@ -27,6 +27,9 @@ public class CategoryListScreen extends BaseContentScreen {
 
     private final Repository repo = Repository.getInstance();
     private LinearLayout listContainer;
+    private int draggingFrom = -1;
+    private android.view.View draggingView = null;
+
 
     // 1. AppBar для этого экрана
     @Override
@@ -34,17 +37,16 @@ public class CategoryListScreen extends BaseContentScreen {
         AppBarView appBar = new AppBarView(context);
         appBar.setTitle(context.getString(R.string.cat_list_title));
 
-        // Навигационная иконка (пока без реального Back)
-        appBar.setNavigationIcon(R.drawable.ic_menu, v -> {
-            // если захочешь обрабатывать назад:
-            // if (listener != null) listener.onScreenStateChanged(CatListState.PR_BACK);
-        });
+        appBar.setNavigationIcon(R.drawable.ic_menu, v -> { /* ... */ });
 
-        // Если нужны actions справа, добавишь тут:
-        // appBar.addAction(R.drawable.ic_settings, v -> { ... });
+        // экшн сортировки
+        appBar.addAction(R.drawable.ic_sort, v -> {
+            showSortDialog(v.getContext());
+        });
 
         return appBar;
     }
+
 
     // 2. Контент под аппбаром
     @Override
@@ -182,6 +184,22 @@ public class CategoryListScreen extends BaseContentScreen {
 
         // ВАЖНО: сохраняем ссылку после создания
         this.listContainer = list;
+        list.setLayoutTransition(new android.animation.LayoutTransition());
+
+        list.setOnDragListener((v, event) -> {
+            switch (event.getAction()) {
+                case android.view.DragEvent.ACTION_DRAG_LOCATION:
+                    handleDragLocation(event);
+                    break;
+                case android.view.DragEvent.ACTION_DRAG_ENDED:
+                case android.view.DragEvent.ACTION_DRAG_EXITED:
+                    draggingFrom = -1;
+                    highlightDraggingCard(false);
+                    draggingView = null;
+                    break;
+            }
+            return true;
+        });
 
         int horizontalPadding = AppTheme.dimenPx(context, R.dimen.cat_create_horizontal_padding);
         int topPadding = AppTheme.dimenPx(
@@ -267,6 +285,38 @@ public class CategoryListScreen extends BaseContentScreen {
                 strokeWidth,
                 cornerRadius
         ));
+
+        card.setTag(R.id.tag_category_color, categoryColor);
+
+        card.setOnLongClickListener(v -> {
+            draggingFrom = listContainer.indexOfChild(v); // актуальный индекс
+            draggingView = v;
+
+            // включаем обводку (делаем рамку чуть толще и контрастнее)
+            highlightDraggingCard(true);
+
+            android.content.ClipData data = android.content.ClipData.newPlainText("", "");
+            android.view.View.DragShadowBuilder shadowBuilder =
+                    new android.view.View.DragShadowBuilder(card);
+            v.startDragAndDrop(data, shadowBuilder, v, 0);
+            return true;
+        });
+
+
+//        card.setOnDragListener((v, event) -> {
+//            if (draggingFrom == -1) return false;
+//
+//            switch (event.getAction()) {
+//                case android.view.DragEvent.ACTION_DRAG_LOCATION:
+//                    handleDragLocation(event);
+//                    break;
+//                case android.view.DragEvent.ACTION_DRAG_ENDED:
+//                    draggingFrom = -1;
+//                    break;
+//            }
+//            return true;
+//        });
+
 
         // --- левый бейдж (только иконка, без рамки) ---
         LinearLayout leftBadge = new LinearLayout(context);
@@ -400,6 +450,11 @@ public class CategoryListScreen extends BaseContentScreen {
         FrameLayout menuContainer = new FrameLayout(context);
         menuContainer.setBackground(menuBg);
 
+        menuContainer.setClickable(true);
+        menuContainer.setForeground(
+                ContextCompat.getDrawable(context, R.drawable.bg_click_ripple)
+        );
+
         FrameLayout.LayoutParams menuContainerLp =
                 new FrameLayout.LayoutParams(rectSize, rectSize);
         menuContainerLp.gravity = Gravity.CENTER;
@@ -428,14 +483,20 @@ public class CategoryListScreen extends BaseContentScreen {
 
         // --- клики ---
         card.setOnClickListener(v -> {
-            repo.catList.index = position;
+            int index = listContainer.indexOfChild(v);
+            repo.catList.index = index;
             if (listener != null) {
                 listener.onScreenStateChanged(CatListState.PR_CAT);
             }
         });
 
-        rightBadge.setOnClickListener(v -> {
-            showCategoryMenu(context, v, cat, position);
+
+//        rightBadge.setOnClickListener(v -> {
+//            showCategoryMenu(context, v, cat, position);
+//        });
+
+        menuContainer.setOnClickListener(v -> {
+            showCategoryMenu(context, v, cat);
         });
 
         // --- скруглённые бейджи ---
@@ -467,8 +528,7 @@ public class CategoryListScreen extends BaseContentScreen {
     private void showCategoryMenu(
             Context context,
             android.view.View anchor,
-            Repository.CategoryList.CategoryData cat,
-            int position
+            Repository.CategoryList.CategoryData cat
     ) {
         PopupMenu popup = new PopupMenu(context, anchor);
         popup.getMenuInflater().inflate(R.menu.categories_item_menu, popup.getMenu());
@@ -489,22 +549,28 @@ public class CategoryListScreen extends BaseContentScreen {
         }
 
         popup.setOnMenuItemClickListener(item -> {
+            int index = findCardIndexForAnchor(anchor);
+            if (index < 0 || index >= repo.catList.categories.size()) return false;
+
             int id = item.getItemId();
             if (id == R.id.action_edit) {
-                repo.catList.index = position;
+                repo.catList.index = index;
                 if (listener != null) {
                     listener.onScreenStateChanged(CatListState.PR_EDIT);
                 }
                 return true;
             } else if (id == R.id.action_duplicate) {
-                duplicateCategory(position);
+                duplicateCategory(index);
                 return true;
             } else if (id == R.id.action_delete) {
-                confirmDeleteCategory(context, cat, position);
+                Repository.CategoryList.CategoryData current =
+                        repo.catList.categories.get(index);
+                confirmDeleteCategory(context, current, index);
                 return true;
             }
             return false;
         });
+
 
         popup.show();
     }
@@ -524,9 +590,25 @@ public class CategoryListScreen extends BaseContentScreen {
         repo.catList.categories.add(position + 1, copy);
 
         if (listContainer != null) {
-            refreshList(listContainer.getContext());
+            Context context = listContainer.getContext();
+            android.view.View card = createCategoryCardView(context, copy, position + 1);
+
+            int betweenCards = AppTheme.dimenPx(context, R.dimen.spacing_medium);
+
+            LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            // отступ нужен, если это НЕ самый верхний элемент
+            if (position + 1 > 0) {
+                cardLp.topMargin = betweenCards;
+            }
+
+            listContainer.addView(card, position + 1, cardLp);
         }
     }
+
+
 
 
 
@@ -557,22 +639,31 @@ public class CategoryListScreen extends BaseContentScreen {
             repo.catList.categories.remove(position);
         }
 
-        if (repo.catList.categories.isEmpty()) {
-            // список опустел — показываем empty state вместо списка
-            FrameLayout root = listContainer != null
-                    ? (FrameLayout) listContainer.getParent().getParent()  // list -> ScrollView -> container
-                    : null;
+        if (listContainer == null) return;
 
-            if (root != null) {
-                root.removeAllViews();
-                renderEmptyState(root);
-            }
+        if (repo.catList.categories.isEmpty()) {
+            // как и раньше — переключаемся на empty state
+            ViewGroup scrollView = (ViewGroup) listContainer.getParent();
+            ViewGroup container = (ViewGroup) scrollView.getParent();
+            FrameLayout root = (FrameLayout) container.getParent();
+
+            root.removeAllViews();
+            renderEmptyState(root);
         } else {
-            if (listContainer != null) {
-                refreshList(listContainer.getContext());
+            listContainer.removeViewAt(position);
+
+            // косметика: убираем отступ у новой верхней карточки
+            if (listContainer.getChildCount() > 0) {
+                android.view.View first = listContainer.getChildAt(0);
+                ViewGroup.LayoutParams lp = first.getLayoutParams();
+                if (lp instanceof LinearLayout.LayoutParams) {
+                    ((LinearLayout.LayoutParams) lp).topMargin = 0;
+                    first.setLayoutParams(lp);
+                }
             }
         }
     }
+
 
 
 
@@ -599,4 +690,197 @@ public class CategoryListScreen extends BaseContentScreen {
         }
     }
 
+    private void handleDragLocation(android.view.DragEvent event) {
+        if (listContainer == null || draggingFrom < 0) return;
+
+        float y = event.getY();
+        int childCount = listContainer.getChildCount();
+        if (childCount <= 1) return;
+
+        int targetIndex = -1;
+
+        for (int i = 0; i < childCount; i++) {
+            android.view.View child = listContainer.getChildAt(i);
+            int top = child.getTop();
+            int bottom = child.getBottom();
+            int center = (top + bottom) / 2;
+
+            if (y < center) {
+                targetIndex = i;
+                break;
+            }
+        }
+        if (targetIndex == -1) {
+            targetIndex = childCount - 1;
+        }
+
+        if (targetIndex == draggingFrom || targetIndex < 0 || targetIndex >= childCount) {
+            return;
+        }
+
+        // Перестановка в репозитории
+        java.util.Collections.swap(repo.catList.categories, draggingFrom, targetIndex);
+
+        // Перестановка в UI
+        android.view.View draggedView = listContainer.getChildAt(draggingFrom);
+        listContainer.removeViewAt(draggingFrom);
+        listContainer.addView(draggedView, targetIndex);
+
+        draggingFrom = targetIndex;
+
+        // ВЫРАВНИВАЕМ отступы между карточками
+        int betweenCards = AppTheme.dimenPx(
+                listContainer.getContext(),
+                R.dimen.spacing_medium
+        );
+
+        for (int i = 0; i < listContainer.getChildCount(); i++) {
+            android.view.View child = listContainer.getChildAt(i);
+            ViewGroup.LayoutParams lp = child.getLayoutParams();
+            if (lp instanceof LinearLayout.LayoutParams) {
+                LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) lp;
+                llp.topMargin = (i == 0) ? 0 : betweenCards;
+                child.setLayoutParams(llp);
+            }
+        }
+    }
+
+
+    private int findCardIndexForAnchor(android.view.View anchor) {
+        if (listContainer == null) return -1;
+
+        // anchor = menuContainer, его parent = rightBadge, parent.parent = card
+        android.view.View parent = (android.view.View) anchor.getParent();
+        if (parent == null) return -1;
+        parent = (android.view.View) parent.getParent();
+        if (parent == null) return -1;
+
+        return listContainer.indexOfChild(parent);
+    }
+
+    private void highlightDraggingCard(boolean highlight) {
+        if (draggingView == null) return;
+
+        android.graphics.drawable.Drawable bg = draggingView.getBackground();
+        if (!(bg instanceof GradientDrawable)) {
+            draggingView.setAlpha(highlight ? 0.95f : 1f);
+            return;
+        }
+
+        GradientDrawable gd = (GradientDrawable) bg;
+
+        int baseStroke = AppTheme.dimenPx(
+                draggingView.getContext(),
+                R.dimen.textfield_stroke_width
+        );
+
+        Object tagColor = draggingView.getTag(R.id.tag_category_color);
+        int baseColor = tagColor instanceof Integer
+                ? (Integer) tagColor
+                : Color.TRANSPARENT;
+
+        if (highlight) {
+            // в 3 раза толще и яркий акцентный цвет
+            int highlightStroke = baseStroke * 3;
+            int highlightColor = Color.parseColor("#FF5722"); // более насыщенный оранжево-красный
+            gd.setStroke(highlightStroke, highlightColor);
+        } else {
+            // возвращаем исходную рамку
+            gd.setStroke(baseStroke, baseColor);
+        }
+
+        draggingView.setBackground(gd);
+    }
+
+    private void showSortDialog(Context context) {
+        String[] options = new String[]{
+                context.getString(R.string.cat_sort_name_asc),
+                context.getString(R.string.cat_sort_name_desc),
+                context.getString(R.string.cat_sort_conv_asc),
+                context.getString(R.string.cat_sort_conv_desc),
+                context.getString(R.string.cat_sort_date_asc),
+                context.getString(R.string.cat_sort_date_desc)
+        };
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.cat_sort_title)
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            sortCategoriesByNameAsc();
+                            break;
+                        case 1:
+                            sortCategoriesByNameDesc();
+                            break;
+                        case 2:
+                            sortCategoriesByConvAsc();
+                            break;
+                        case 3:
+                            sortCategoriesByConvDesc();
+                            break;
+                        case 4:
+                            sortCategoriesByDateAsc();
+                            break;
+                        case 5:
+                            sortCategoriesByDateDesc();
+                            break;
+                    }
+                    refreshList(context);
+                })
+                .show();
+    }
+
+    private void sortCategoriesByNameAsc() {
+        java.util.Collections.sort(
+                repo.catList.categories,
+                (a, b) -> String.valueOf(a.name)
+                        .compareToIgnoreCase(String.valueOf(b.name))
+        );
+    }
+
+    private void sortCategoriesByNameDesc() {
+        java.util.Collections.sort(
+                repo.catList.categories,
+                (a, b) -> String.valueOf(b.name)
+                        .compareToIgnoreCase(String.valueOf(a.name))
+        );
+    }
+
+    private int convCount(Repository.CategoryList.CategoryData c) {
+        return c.converters != null ? c.converters.size() : 0;
+    }
+
+    private void sortCategoriesByConvAsc() {
+        java.util.Collections.sort(
+                repo.catList.categories,
+                (a, b) -> Integer.compare(convCount(a), convCount(b))
+        );
+    }
+
+    private void sortCategoriesByConvDesc() {
+        java.util.Collections.sort(
+                repo.catList.categories,
+                (a, b) -> Integer.compare(convCount(b), convCount(a))
+        );
+    }
+
+    private long createdAt(Repository.CategoryList.CategoryData c) {
+        return c.createdAt != null ? c.createdAt : 0L;
+    }
+
+    private void sortCategoriesByDateAsc() {
+        // старые сверху
+        java.util.Collections.sort(
+                repo.catList.categories,
+                (a, b) -> Long.compare(createdAt(a), createdAt(b))
+        );
+    }
+
+    private void sortCategoriesByDateDesc() {
+        // новые сверху
+        java.util.Collections.sort(
+                repo.catList.categories,
+                (a, b) -> Long.compare(createdAt(b), createdAt(a))
+        );
+    }
 }

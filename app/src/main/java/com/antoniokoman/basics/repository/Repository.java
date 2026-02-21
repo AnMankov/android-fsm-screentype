@@ -29,6 +29,7 @@ public class Repository {
             public ArrayList<ConverterData> converters = new ArrayList<>(); //массив ссылок на конвертеры в конкретной категории (у разных категорий могут быть одинаковые конвертеры - для будущих операций копирования/вставки конвертера в категории).
             public String color; //это некая кастомизация внешнего вида (украшательства)
             public String icon; //это некая кастомизация внешнего вида (украшательства)
+            public Long createdAt; // timestamp в millis
         }
     }
 
@@ -56,6 +57,7 @@ public class Repository {
         cat.icon = icon;
         cat.converterIndex = 0;
         cat.converters = new ArrayList<>();
+        cat.createdAt = System.currentTimeMillis();
 
         catList.categories.add(cat);
         catList.index = catList.categories.size() - 1;

@@ -27,8 +27,21 @@
 
     <string name="cat_menu_edit">Редактировать</string>
     <string name="cat_menu_duplicate">Дублировать</string>
+    <string name="cat_menu_sort">Сортировка</string>
     <string name="cat_menu_delete">Удалить</string>
     <string name="cat_menu_cd">Меню категории %1$s</string>
+
+    <string name="cat_sort_title">Сортировка</string>
+
+    <string name="cat_sort_name_asc">По имени, от А до Я</string>
+    <string name="cat_sort_name_desc">По имени, от Я до А</string>
+
+    <string name="cat_sort_conv_asc">По количеству, по возрастанию</string>
+    <string name="cat_sort_conv_desc">По количеству, по убыванию</string>
+
+    <string name="cat_sort_date_asc">По дате, старые сверху</string>
+    <string name="cat_sort_date_desc">По дате, новые сверху</string>
+
 
 
     <string name="cat_delete_title">Удалить категорию</string>
